@@ -13,9 +13,10 @@ int main(int argc, char **argv) {
     vector<ColorRange> colorRanges = loadColorRangesFromJson(config.colorRangesPath);
     vector<double> meanBuffer = {};
     vector<double> correlationBuffer = {};
+    VideoCapture cap;
+
     float range[] = {0, static_cast<float>(config.sizeParameters.histogramSize)};
     const float *histRange = {range};
-    VideoCapture cap;
 
     if (!cap.open(config.url, CAP_FFMPEG, {CAP_PROP_HW_ACCELERATION, VIDEO_ACCELERATION_VAAPI})) {
         cerr << "Failed to open video stream\n";
@@ -40,8 +41,8 @@ void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector<Co
     Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     auto start = chrono::high_resolution_clock::now();
     int frameCounter = 0;
-    double threshold = 0;
     int passedFrameCounter = 0;
+    double threshold = 0;
     while (true) {
 
         if (!cap.read(frame)) {
@@ -50,7 +51,7 @@ void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector<Co
             continue;
         }
 
-        resize(frame, downscaledFrame, Size(600, 400), INTER_LINEAR);
+        resize(frame, downscaledFrame, Size(600, 400), INTER_AREA);
         cvtColor(downscaledFrame, grayFrame, COLOR_BGR2GRAY);
 
         if (prevGrayFrame.empty()) {
@@ -60,6 +61,7 @@ void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector<Co
 
         if (config.keyframesOnly && !isKeyFrame(grayFrame, prevGrayFrame, threshold, histRange,
                                                 config.sizeParameters.histogramSize, passedFrameCounter)) {
+            prevGrayFrame = grayFrame.clone();
             passedFrameCounter++;
             continue;
         }
@@ -90,7 +92,7 @@ void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector<Co
         auto duration = chrono::duration_cast<chrono::seconds>(now - start);
         frameCounter++;
         imshow("window", downscaledFrame);
-        if (waitKey(config.interval) >= 0 || duration.count() >= config.interval) {
+        if (/*waitKey(config.interval) >= 0 || */duration.count() >= config.interval) {
             destroyAllWindows();
             break;
         }
@@ -130,11 +132,7 @@ bool isKeyFrame(const Mat &frame, const Mat &prevFrame, double &threshold, const
         return true;
     }
 
-    if (diffMean > threshold) {
-        frameCounter = 0;
-    }
-
-    return diffMean > threshold;
+    return false;
 }
 
 
@@ -157,6 +155,7 @@ bool detectArtifacts(const Mat &frame, const Mat &prevFrame, vector<double> &buf
     double correlationAverage = mean(buffer)[0];
     // cout << "Histogram correlation: " << correlationAverage << "\n";
     if (correlationAverage < threshold) {
+        imwrite("prev" + filename, prevFrame);
         imwrite(filename, frame);
         cout << "Possible frame corruption detected due to low histogram correlation!\n";
     }
@@ -179,15 +178,20 @@ bool detectColouredStripes(const Mat &frame, const vector<ColorRange> &colorRang
         colorDistributions.push_back((mean(mask)[0] / 255) * 100);
     }
 
-    Scalar m, s;
-    meanStdDev(colorDistributions, m, s);
+    Scalar meanVal, stdDevVal;
+    meanStdDev(colorDistributions, meanVal, stdDevVal);
+
     double scalingFactor = 100.0 / colorRanges.size();
-    double colouredStripesProbability = (m[0] / scalingFactor) * 100;
+    double colouredStripesProbability = (meanVal[0] / scalingFactor) * 100;
+
     cout << "combinedMask: " << colouredStripesProbability << "%\n";
-    if (colouredStripesProbability > threshold1 && s[0] < threshold2) {
+
+    if (colouredStripesProbability > threshold1 && stdDevVal[0] < threshold2) {
         imshow("coloured stripes", combinedMask);
+
+
     }
-    return colouredStripesProbability > threshold1 && s[0] < threshold2;
+    return colouredStripesProbability > threshold1 && stdDevVal[0] < threshold2;
 }
 
 bool detectBlackFrame(const Mat &frame, const double &threshold) {
