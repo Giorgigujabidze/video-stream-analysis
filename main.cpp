@@ -43,37 +43,45 @@ void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector<Co
     double threshold = 0;
     int passedFrameCounter = 0;
     while (true) {
+
         if (!cap.read(frame)) {
             cerr << "Blank frame grabbed\n";
             metrics.blankFrameCount++;
             continue;
         }
+
         resize(frame, downscaledFrame, Size(600, 400), INTER_LINEAR);
         cvtColor(downscaledFrame, grayFrame, COLOR_BGR2GRAY);
-        if (!prevGrayFrame.empty()) {
-            if (config.keyframesOnly && !isKeyFrame(grayFrame, prevGrayFrame, threshold, histRange,
-                                                    config.sizeParameters.histogramSize, passedFrameCounter)) {
-                passedFrameCounter++;
-                continue;
+
+        if (prevGrayFrame.empty()) {
+            prevGrayFrame = grayFrame.clone();
+            continue;
+        }
+
+        if (config.keyframesOnly && !isKeyFrame(grayFrame, prevGrayFrame, threshold, histRange,
+                                                config.sizeParameters.histogramSize, passedFrameCounter)) {
+            passedFrameCounter++;
+            continue;
+        }
+
+        string filename = "frame" + to_string(frameCounter) + ".pgm";
+        if (detectArtifacts(grayFrame, prevGrayFrame, buffer2, config.corruptedFramesPath + filename,
+                            config.thresholds.artifactDetectionThreshold,
+                            config.sizeParameters.maxCorrelationBufferSize,
+                            histRange,
+                            config.sizeParameters.histogramSize)) {
+            metrics.corruptFrameCount++;
+        }
+
+        if (detectStaticFrame(grayFrame, prevGrayFrame, config.thresholds.staticFrameThreshold, buffer1,
+                              config.sizeParameters.maxMeanBufferSize)) {
+            metrics.staticFrameCount++;
+            if (detectBlackFrame(grayFrame, config.thresholds.blackFrameThreshold)) {
+                metrics.blackFrameCount++;
             }
-            string filename = "frame" + to_string(frameCounter) + ".pgm";
-            if (detectArtifacts(grayFrame, prevGrayFrame, buffer2, config.corruptedFramesPath + filename,
-                                config.thresholds.artifactDetectionThreshold,
-                                config.sizeParameters.maxCorrelationBufferSize,
-                                histRange,
-                                config.sizeParameters.histogramSize)) {
-                metrics.corruptFrameCount++;
-            }
-            if (detectStaticFrame(grayFrame, prevGrayFrame, config.thresholds.staticFrameThreshold, buffer1,
-                                  config.sizeParameters.maxMeanBufferSize)) {
-                metrics.staticFrameCount++;
-                if (detectBlackFrame(grayFrame, config.thresholds.blackFrameThreshold)) {
-                    metrics.blackFrameCount++;
-                }
-                if (detectColouredStripes(downscaledFrame, colorRanges, config.thresholds.colouredStripesThreshold,
-                                          config.thresholds.colouredStripesMaxDeviation)) {
-                    metrics.colouredStripesDetected = true;
-                }
+            if (detectColouredStripes(downscaledFrame, colorRanges, config.thresholds.colouredStripesThreshold,
+                                      config.thresholds.colouredStripesMaxDeviation)) {
+                metrics.colouredStripesDetected = true;
             }
         }
 
@@ -88,6 +96,7 @@ void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector<Co
         }
     }
 }
+
 
 bool isKeyFrame(const Mat &frame, const Mat &prevFrame, double &threshold, const float **histRange, const int &histSize,
                 int &frameCounter, int forcedKeyframeInterval) {
@@ -121,7 +130,7 @@ bool isKeyFrame(const Mat &frame, const Mat &prevFrame, double &threshold, const
         return true;
     }
 
-    if (diffMean > threshold){
+    if (diffMean > threshold) {
         frameCounter = 0;
     }
 
