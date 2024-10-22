@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     float range[] = {0, static_cast<float>(config.sizeParameters.histogramSize)};
     const float *histRange = {range};
 
-    if (!cap.open(config.url, CAP_FFMPEG, {CAP_PROP_HW_ACCELERATION, VIDEO_ACCELERATION_VAAPI})) {
+    if (!cap.open(config.url, CAP_FFMPEG, {CAP_PROP_HW_ACCELERATION, VIDEO_ACCELERATION_NONE})) {
         cerr << "Failed to open video stream\n";
         return -1;
     }
@@ -91,9 +91,9 @@ void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector<Co
         auto now = chrono::high_resolution_clock::now();
         auto duration = chrono::duration_cast<chrono::seconds>(now - start);
         frameCounter++;
-        imshow("window", downscaledFrame);
-        if (/*waitKey(config.interval) >= 0 || */duration.count() >= config.interval) {
-            destroyAllWindows();
+        //imshow("window", downscaledFrame);
+        if (/*waitKey(config.interval) >= 0 ||*/ duration.count() >= config.interval) {
+            //destroyAllWindows();
             break;
         }
     }
@@ -115,8 +115,8 @@ bool isKeyFrame(const Mat &frame, const Mat &prevFrame, double &threshold, const
 
     double diffMean = mean(diff)[0];
 
-    cout << "Difference mean: " << diffMean << "\n";
-    cout << "Current threshold: " << threshold << "\n";
+    //cout << "Difference mean: " << diffMean << "\n";
+    //cout << "Current threshold: " << threshold << "\n";
 
     if (threshold == 0) {
         Scalar meanVal, stdDevVal;
@@ -126,13 +126,16 @@ bool isKeyFrame(const Mat &frame, const Mat &prevFrame, double &threshold, const
     }
 
     if (frameCounter && (frameCounter % forcedKeyframeInterval == 0)) {
-        //cout << frameCounter;
         cout << "Forcing keyframe due to frame interval.\n";
         frameCounter = 0;
         return true;
     }
 
-    return false;
+    if (diffMean > threshold) {
+        frameCounter = 0;
+    }
+
+    return diffMean > threshold;
 }
 
 

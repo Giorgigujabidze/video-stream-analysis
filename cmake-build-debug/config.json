@@ -1,5 +1,5 @@
 {
-  "url": "udp://192.168.0.7:1235",
+  "url": "https://tbs01-edge34.itdc.ge/silk_sport4/tracks-v1a1/mono.m3u8?token=1r5gsuTMZBOgvaqqVfO1bYqGkenSzxXPxEQgg6t1VwHCS5GfVv-6qmp-gfVdpMdXPKBVckoKdyQMfL0hlG66dBxoPLoC-FsSkr2N5bApzoYfDg_lGALn4mYCyBlpq4cPgF-OcOyjGnqS4Ne7SSEEEAeTL__PRlnBvgwGMCJN2fYrWLF3Gp7gTcGag1rUk3Y0b3BQln31xUsi5xElsM9WMCVKkWSdGYGW3HRmE5p2A0RSz3mptESjZh0ddELV7Ogod8gXsgjpLwxccOVowmVaCaRbbN0rUhvkjsDkxX-c3gF4J7j-rU61T1b0HvoxjXuH",
   "color_ranges_path": "./color_ranges.json",
   "corrupted_frames_path": "./corrupted_frames/",
   "keyframes_only": true,
