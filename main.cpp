@@ -44,6 +44,9 @@ void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector <C
     int passedFrameCounter = 0;
     double threshold = 0;
     while (true) {
+        if (metrics.blankFrameCount > 10){
+            break;
+        }
 
         if (!cap.read(frame)) {
             cerr << "Blank frame grabbed\n";
@@ -115,6 +118,11 @@ bool isKeyFrame(const Mat &frame, const Mat &prevFrame, double &threshold, const
 
     double diffMean = mean(diff)[0];
 
+    if (diffMean < threshold){
+        cout << "not a key frame!\n";
+    }else{
+        cout << "**key frame!**\n";
+    }
     //cout << "Difference mean: " << diffMean << "\n";
     //cout << "Current threshold: " << threshold << "\n";
 
