@@ -2,18 +2,19 @@
 
 ```bash
 
-wget -O opencv.zip https://github.com/opencv/opencv/archive/4.10.0.zip                                                               14:33:07
+wget -O opencv.zip https://github.com/opencv/opencv/archive/4.10.0.zip
 wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.10.0.zip
 unzip opencv.zip && unzip opencv_contrib.zip
 
 cd opencv-4.10.0
 mkdir build && cd build
 
-cmake -D CMAKE_BUILD_TYPE=RELEASE \                                                                                              INT 14:30:15
+cmake -D CMAKE_BUILD_TYPE=RELEASE \
 -D CMAKE_INSTALL_PREFIX=/usr/local \
 -D WITH_VA=ON \
 -D WITH_VA_INTEL=ON \
 -D WITH_FFMPEG=ON \
+-D WITH_GSTREAMER=ON\
 -D WITH_MFX=ON \
 -D OPENCV_GENERATE_PKGCONFIG=YES \
 -D ENABLE_PRECOMPILED_HEADERS=OFF \
