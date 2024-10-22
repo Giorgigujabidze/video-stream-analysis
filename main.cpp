@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
     Config config = Config{};
     loadConfigFromJson(argv[1], config);
 
-    vector<ColorRange> colorRanges = loadColorRangesFromJson(config.colorRangesPath);
+    vector <ColorRange> colorRanges = loadColorRangesFromJson(config.colorRangesPath);
     vector<double> meanBuffer = {};
     vector<double> correlationBuffer = {};
     VideoCapture cap;
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector<ColorRange> &colorRanges,
+void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector <ColorRange> &colorRanges,
                         Metrics &metrics, vector<double> &buffer1, vector<double> &buffer2, const float **histRange) {
     Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     auto start = chrono::high_resolution_clock::now();
@@ -80,9 +80,9 @@ void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector<Co
             metrics.staticFrameCount++;
             if (detectBlackFrame(grayFrame, config.thresholds.blackFrameThreshold)) {
                 metrics.blackFrameCount++;
-            }
-            if (!metrics.colouredStripesDetected && detectColouredStripes(downscaledFrame, colorRanges, config.thresholds.colouredStripesThreshold,
-                                      config.thresholds.colouredStripesMaxDeviation)) {
+            } else if (!metrics.colouredStripesDetected &&
+                       detectColouredStripes(downscaledFrame, colorRanges, config.thresholds.colouredStripesThreshold,
+                                             config.thresholds.colouredStripesMaxDeviation)) {
                 metrics.colouredStripesDetected = true;
             }
         }
@@ -167,7 +167,7 @@ bool detectArtifacts(const Mat &frame, const Mat &prevFrame, vector<double> &buf
     return correlationAverage < threshold;
 }
 
-bool detectColouredStripes(const Mat &frame, const vector<ColorRange> &colorRanges, const double &threshold1,
+bool detectColouredStripes(const Mat &frame, const vector <ColorRange> &colorRanges, const double &threshold1,
                            const double &threshold2) {
     Mat hsvFrame;
     cvtColor(frame, hsvFrame, COLOR_BGR2HSV);
@@ -218,12 +218,12 @@ bool detectStaticFrame(const Mat &frame, const Mat &prevFrame, const double &thr
     return bufferAverage < threshold;
 }
 
-vector<ColorRange> loadColorRangesFromJson(const string &filename) {
+vector <ColorRange> loadColorRangesFromJson(const string &filename) {
     ifstream file(filename);
     json j;
     file >> j;
 
-    vector<ColorRange> colorRanges;
+    vector <ColorRange> colorRanges;
     for (auto &range: j["colorRanges"]) {
         colorRanges.push_back({
                                       range["name"],
@@ -240,7 +240,7 @@ void writeResultsToJson(const string &filename, Metrics &metrics) {
     time(&now);
     char buf[sizeof "2011-10-08T07:07:09Z"];
     strftime(buf, sizeof buf, "%F %T", localtime(&now));
-    vector<Metrics> results = loadResultsLog(filename);
+    vector <Metrics> results = loadResultsLog(filename);
     metrics.time = buf;
     results.push_back(metrics);
     j["results"] = results;
@@ -249,10 +249,10 @@ void writeResultsToJson(const string &filename, Metrics &metrics) {
 }
 
 
-vector<Metrics> loadResultsLog(const string &filename) {
+vector <Metrics> loadResultsLog(const string &filename) {
     ifstream file(filename);
     json j;
-    vector<Metrics> results = {};
+    vector <Metrics> results = {};
     try {
         file >> j;
     } catch (json::parse_error &e) {
