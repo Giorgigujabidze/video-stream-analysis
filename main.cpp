@@ -8,9 +8,16 @@ int main(int argc, char **argv) {
     }
 
     Config config = Config{};
-    loadConfigFromJson(argv[1], config);
+    if (loadConfigFromJson(argv[1], config) < 0) {
+        cout << "failed to load config file\n";
+        return -1;
+    }
 
-    vector <ColorRange> colorRanges = loadColorRangesFromJson(config.colorRangesPath);
+    vector<ColorRange> colorRanges = loadColorRangesFromJson(config.colorRangesPath);
+    if (colorRanges.empty()) {
+        cout << "failed to load color ranges\n";
+        return -1;
+    }
     vector<double> meanBuffer = {};
     vector<double> correlationBuffer = {};
     VideoCapture cap;
@@ -36,7 +43,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector <ColorRange> &colorRanges,
+void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector<ColorRange> &colorRanges,
                         Metrics &metrics, vector<double> &buffer1, vector<double> &buffer2, const float **histRange) {
     Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     auto start = chrono::high_resolution_clock::now();
@@ -44,7 +51,7 @@ void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector <C
     int passedFrameCounter = 0;
     double threshold = 0;
     while (true) {
-        if (metrics.blankFrameCount > 10){
+        if (metrics.blankFrameCount > 10) {
             break;
         }
 
@@ -118,9 +125,9 @@ bool isKeyFrame(const Mat &frame, const Mat &prevFrame, double &threshold, const
 
     double diffMean = mean(diff)[0];
 
-    if (diffMean < threshold){
+    if (diffMean < threshold) {
         cout << "not a key frame!\n";
-    }else{
+    } else {
         cout << "**key frame!**\n";
     }
     //cout << "Difference mean: " << diffMean << "\n";
@@ -175,7 +182,7 @@ bool detectArtifacts(const Mat &frame, const Mat &prevFrame, vector<double> &buf
     return correlationAverage < threshold;
 }
 
-bool detectColouredStripes(const Mat &frame, const vector <ColorRange> &colorRanges, const double &threshold1,
+bool detectColouredStripes(const Mat &frame, const vector<ColorRange> &colorRanges, const double &threshold1,
                            const double &threshold2) {
     Mat hsvFrame;
     cvtColor(frame, hsvFrame, COLOR_BGR2HSV);
@@ -226,12 +233,18 @@ bool detectStaticFrame(const Mat &frame, const Mat &prevFrame, const double &thr
     return bufferAverage < threshold;
 }
 
-vector <ColorRange> loadColorRangesFromJson(const string &filename) {
+vector<ColorRange> loadColorRangesFromJson(const string &filename) {
     ifstream file(filename);
     json j;
-    file >> j;
+    vector<ColorRange> colorRanges;
 
-    vector <ColorRange> colorRanges;
+    try {
+        file >> j;
+    } catch (json::parse_error &e) {
+        cout << e.what() << '\n';
+        return colorRanges;
+    }
+
     for (auto &range: j["colorRanges"]) {
         colorRanges.push_back({
                                       range["name"],
@@ -248,7 +261,7 @@ void writeResultsToJson(const string &filename, Metrics &metrics) {
     time(&now);
     char buf[sizeof "2011-10-08T07:07:09Z"];
     strftime(buf, sizeof buf, "%F %T", localtime(&now));
-    vector <Metrics> results = loadResultsLog(filename);
+    vector<Metrics> results = loadResultsLog(filename);
     metrics.time = buf;
     results.push_back(metrics);
     j["results"] = results;
@@ -257,10 +270,10 @@ void writeResultsToJson(const string &filename, Metrics &metrics) {
 }
 
 
-vector <Metrics> loadResultsLog(const string &filename) {
+vector<Metrics> loadResultsLog(const string &filename) {
     ifstream file(filename);
     json j;
-    vector <Metrics> results = {};
+    vector<Metrics> results = {};
     try {
         file >> j;
     } catch (json::parse_error &e) {
@@ -290,10 +303,16 @@ vector <Metrics> loadResultsLog(const string &filename) {
 }
 
 
-void loadConfigFromJson(const string &filename, Config &config) {
+int loadConfigFromJson(const string &filename, Config &config) {
     ifstream file(filename);
     json j;
-    file >> j;
+
+    try {
+        file >> j;
+    } catch (json::parse_error &e) {
+        cout << e.what();
+        return -1;
+    }
 
     config.url = j["url"];
     config.colorRangesPath = j["color_ranges_path"];
@@ -312,6 +331,7 @@ void loadConfigFromJson(const string &filename, Config &config) {
             j["size_parameters"]["max_correlation_buffer_size"],
             j["size_parameters"]["histogram_size"],
     };
+    return 0;
 }
 
 void filePutContents(const string &filename, const json &content, bool append = false) {
