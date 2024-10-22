@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     float range[] = {0, static_cast<float>(config.sizeParameters.histogramSize)};
     const float *histRange = {range};
 
-    if (!cap.open(config.url, CAP_FFMPEG, {CAP_PROP_HW_ACCELERATION, VIDEO_ACCELERATION_NONE})) {
+    if (!cap.open(config.url, CAP_FFMPEG, {CAP_PROP_HW_ACCELERATION, VIDEO_ACCELERATION_VAAPI})) {
         cerr << "Failed to open video stream\n";
         return -1;
     }
@@ -81,7 +81,7 @@ void analyzeVideoStream(VideoCapture &cap, const Config &config, const vector<Co
             if (detectBlackFrame(grayFrame, config.thresholds.blackFrameThreshold)) {
                 metrics.blackFrameCount++;
             }
-            if (detectColouredStripes(downscaledFrame, colorRanges, config.thresholds.colouredStripesThreshold,
+            if (!metrics.colouredStripesDetected && detectColouredStripes(downscaledFrame, colorRanges, config.thresholds.colouredStripesThreshold,
                                       config.thresholds.colouredStripesMaxDeviation)) {
                 metrics.colouredStripesDetected = true;
             }
