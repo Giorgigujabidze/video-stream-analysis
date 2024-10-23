@@ -2,7 +2,8 @@
 #include "frame_analysis.hpp"
 
 void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::vector<ColorRange> &colorRanges,
-                        Metrics &metrics, std::vector<double> &buffer1,std::vector<double> &buffer2, const float **histRange) {
+                        Metrics &metrics, std::vector<double> &buffer1, std::vector<double> &buffer2,
+                        const float **histRange) {
     cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     auto start = std::chrono::high_resolution_clock::now();
     int frameCounter = 0;
@@ -34,6 +35,16 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
             continue;
         }
 
+
+        double mssim = getMSSIM(grayFrame, prevGrayFrame);
+        if (mssim < 0.5) {
+
+            std::cout << "BAD FRAMEEEEEEEEEEEEEEE: " << mssim << "\n";
+            metrics.corruptFrameCount++;
+
+        }
+
+
         std::string filename = "frame" + std::to_string(frameCounter) + ".pgm";
         if (detectArtifacts(grayFrame, prevGrayFrame, buffer2, config.corruptedFramesPath + filename,
                             config.thresholds.artifactDetectionThreshold,
@@ -54,13 +65,12 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
                 metrics.colouredStripesDetected = true;
             }
         }
-
         prevGrayFrame = grayFrame.clone();
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
         frameCounter++;
-        //imshow("window", downscaledFrame);
-        if (/*waitKey(config.interval) >= 0 ||*/ duration.count() >= config.interval) {
+        imshow("window", downscaledFrame);
+        if (cv::waitKey(30) >= 0 || duration.count() >= config.interval) {
             //destroyAllWindows();
             break;
         }
