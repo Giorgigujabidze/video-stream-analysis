@@ -1,12 +1,18 @@
 # ninja log v6
-3	42	1729681221769423752	build.ninja	d84aca124e7cc996
-0	5419	1729675192216504326	CMakeFiles/stream_analysis.dir/main.cpp.o	d0161db3b3fbb25c
-4	12888	1729625825647044606	CMakeFiles/untitled8.dir/main.cpp.o	e311f050ed89157e
-5257	5467	1729675471459135955	stream_analysis	13b0d9f37950eb89
-1	5256	1729675466203217387	CMakeFiles/stream_analysis.dir/stream_analysis.cpp.o	63027ab74ed794ed
-1	4113	1729681248526601608	CMakeFiles/stream_analysis.dir/config.cpp.o	701afff63244e1f4
+3	42	1729681552656102406	build.ninja	d84aca124e7cc996
 1	4716	1729681248526601608	CMakeFiles/stream_analysis.dir/main.cpp.o	d0161db3b3fbb25c
-1	4818	1729681248526601608	CMakeFiles/stream_analysis.dir/metrics.cpp.o	f68c4cd7e185e62d
-1	4858	1729681248526601608	CMakeFiles/stream_analysis.dir/stream_analyzer.cpp.o	37dd71776a360aef
-1	5381	1729681248526601608	CMakeFiles/stream_analysis.dir/frame_analysis.cpp.o	73d6e765fd498efe
+4	12888	1729625825647044606	CMakeFiles/untitled8.dir/main.cpp.o	e311f050ed89157e
 5381	5706	1729681253906634230	stream_analysis	a0a53aeeedeff440
+1	4113	1729681248526601608	CMakeFiles/stream_analysis.dir/config.cpp.o	701afff63244e1f4
+1	4858	1729681248526601608	CMakeFiles/stream_analysis.dir/stream_analyzer.cpp.o	37dd71776a360aef
+1	5256	1729675466203217387	CMakeFiles/stream_analysis.dir/stream_analysis.cpp.o	63027ab74ed794ed
+1	5381	1729681248526601608	CMakeFiles/stream_analysis.dir/frame_analysis.cpp.o	73d6e765fd498efe
+1	4818	1729681248526601608	CMakeFiles/stream_analysis.dir/metrics.cpp.o	f68c4cd7e185e62d
+2	9964	1729681559837087132	CMakeFiles/stream_analysis.dir/config.cpp.o	701afff63244e1f4
+3	10934	1729681559838087129	CMakeFiles/stream_analysis.dir/metrics.cpp.o	f68c4cd7e185e62d
+2	11000	1729681559837087132	CMakeFiles/stream_analysis.dir/main.cpp.o	d0161db3b3fbb25c
+4	11345	1729681559839087127	CMakeFiles/stream_analysis.dir/stream_analyzer.cpp.o	37dd71776a360aef
+3	11450	1729681559838087129	CMakeFiles/stream_analysis.dir/frame_analysis.cpp.o	73d6e765fd498efe
+11450	11986	1729681571285060706	stream_analysis	a0a53aeeedeff440
+1	3521	1729681891897481756	CMakeFiles/stream_analysis.dir/main.cpp.o	d0161db3b3fbb25c
+3521	3762	1729681895417457194	stream_analysis	a0a53aeeedeff440
