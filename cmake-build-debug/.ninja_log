@@ -1,7 +1,12 @@
 # ninja log v6
-3	42	1729675291441941117	build.ninja	d84aca124e7cc996
+3	42	1729681221769423752	build.ninja	d84aca124e7cc996
 0	5419	1729675192216504326	CMakeFiles/stream_analysis.dir/main.cpp.o	d0161db3b3fbb25c
 4	12888	1729625825647044606	CMakeFiles/untitled8.dir/main.cpp.o	e311f050ed89157e
-5420	5631	1729675197636418570	stream_analysis	dd4f82d32ae6c4df
-1	5256	1729675466203217387	CMakeFiles/stream_analysis.dir/stream_analysis.cpp.o	63027ab74ed794ed
 5257	5467	1729675471459135955	stream_analysis	13b0d9f37950eb89
+1	5256	1729675466203217387	CMakeFiles/stream_analysis.dir/stream_analysis.cpp.o	63027ab74ed794ed
+1	4113	1729681248526601608	CMakeFiles/stream_analysis.dir/config.cpp.o	701afff63244e1f4
+1	4716	1729681248526601608	CMakeFiles/stream_analysis.dir/main.cpp.o	d0161db3b3fbb25c
+1	4818	1729681248526601608	CMakeFiles/stream_analysis.dir/metrics.cpp.o	f68c4cd7e185e62d
+1	4858	1729681248526601608	CMakeFiles/stream_analysis.dir/stream_analyzer.cpp.o	37dd71776a360aef
+1	5381	1729681248526601608	CMakeFiles/stream_analysis.dir/frame_analysis.cpp.o	73d6e765fd498efe
+5381	5706	1729681253906634230	stream_analysis	a0a53aeeedeff440
