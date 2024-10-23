@@ -35,22 +35,8 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
             continue;
         }
 
-
         double mssim = getMSSIM(grayFrame, prevGrayFrame);
-        if (mssim < 0.5) {
-
-            std::cout << "BAD FRAMEEEEEEEEEEEEEEE: " << mssim << "\n";
-            metrics.corruptFrameCount++;
-
-        }
-
-
-        std::string filename = "frame" + std::to_string(frameCounter) + ".pgm";
-        if (detectArtifacts(grayFrame, prevGrayFrame, buffer2, config.corruptedFramesPath + filename,
-                            config.thresholds.artifactDetectionThreshold,
-                            config.sizeParameters.maxCorrelationBufferSize,
-                            histRange,
-                            config.sizeParameters.histogramSize)) {
+        if (mssim < 0.4) {
             metrics.corruptFrameCount++;
         }
 
@@ -69,9 +55,7 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
         frameCounter++;
-        imshow("window", downscaledFrame);
-        if (cv::waitKey(30) >= 0 || duration.count() >= config.interval) {
-            //destroyAllWindows();
+        if (duration.count() >= config.interval) {
             break;
         }
     }
