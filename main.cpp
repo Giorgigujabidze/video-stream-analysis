@@ -34,7 +34,6 @@ int main(int argc, char **argv) {
         std::cerr << "Failed to open video stream\n";
         return -1;
     }
-    //cv::utils::logging::setLogLevel(cv::utils::logging::LOG_LEVEL_VERBOSE);
 
     std::cout << "Starting to grab frames\n";
     while (true) {
