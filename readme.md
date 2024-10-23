@@ -73,5 +73,5 @@ make
 
 ```bash
 cd cmake-build-debug
-./untitled8 config.json results.json
+./stream_analysis config.json results.json
 ```
