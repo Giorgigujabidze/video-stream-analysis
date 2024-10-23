@@ -1,4 +1,38 @@
-## opencv installation and build
+
+## Build ffmpeg from source:
+
+```bash
+
+git clone https://git.ffmpeg.org/ffmpeg.git
+cd ffmpeg
+
+./configure \
+  --enable-shared \
+  --enable-gpl \
+  --enable-nonfree \
+  --enable-libvpl \
+  --enable-vaapi \
+  --enable-libx264 \
+  --enable-libx265 \
+  --enable-libvpx \
+  --enable-libass \
+  --enable-libfreetype \
+  --enable-libvorbis \
+  --enable-libmp3lame \
+  --enable-pic \
+  --enable-openssl \
+  --extra-cflags=-I/usr/local/include \
+  --extra-ldflags=-L/usr/local/lib
+
+make -j$(nproc)
+
+sudo make install
+
+sudo ldconfig
+
+```
+
+## Build  opencv from source:
 
 ```bash
 
@@ -26,7 +60,16 @@ sudo make install
 sudo ldconfig
 ```
 
-## usage:
+## To build project:
+
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
+
+## Usage:
 
 ```bash
 cd cmake-build-debug
