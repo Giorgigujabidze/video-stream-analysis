@@ -17,19 +17,15 @@ int loadConfigFromJson(const std::string &filename, Config &config) {
     config.url = j["url"];
     config.colorRangesPath = j["color_ranges_path"];
     config.corruptedFramesPath = j["corrupted_frames_path"];
-    config.keyframesOnly = j["keyframes_only"];
     config.interval = j["interval"];
     config.thresholds = {
             j["thresholds"]["static_frame_threshold"],
             j["thresholds"]["coloured_stripes_threshold"],
             j["thresholds"]["coloured_stripes_max_deviation"],
             j["thresholds"]["black_frame_threshold"],
-            j["thresholds"]["artifact_detection_threshold"],
     };
     config.sizeParameters = {
             j["size_parameters"]["max_mean_buffer_size"],
-            j["size_parameters"]["max_correlation_buffer_size"],
-            j["size_parameters"]["histogram_size"],
     };
     return 0;
 }

@@ -15,13 +15,10 @@ struct Thresholds {
     double colouredStripesThreshold;
     double colouredStripesMaxDeviation;
     double blackFrameThreshold;
-    double artifactDetectionThreshold;
 };
 
 struct SizeParameters {
     int maxMeanBufferSize;
-    int maxCorrelationBufferSize;
-    int histogramSize;
 };
 
 struct Config {
@@ -31,7 +28,6 @@ struct Config {
     Thresholds thresholds;
     SizeParameters sizeParameters;
     time_t interval;
-    bool keyframesOnly;
 };
 
 struct ColorRange {

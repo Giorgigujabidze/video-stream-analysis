@@ -27,8 +27,7 @@ int main(int argc, char **argv) {
     std::vector<double> correlationBuffer = {};
     cv::VideoCapture cap;
 
-    float range[] = {0, static_cast<float>(config.sizeParameters.histogramSize)};
-    const float *histRange = {range};
+
 
     if (!cap.open(config.url, cv::CAP_FFMPEG, {cv::CAP_PROP_HW_ACCELERATION, cv::VIDEO_ACCELERATION_VAAPI})) {
         std::cerr << "Failed to open video stream\n";
@@ -38,7 +37,7 @@ int main(int argc, char **argv) {
     std::cout << "Starting to grab frames\n";
     while (true) {
         auto metrics = Metrics{};
-        analyzeVideoStream(cap, config, colorRanges, metrics, meanBuffer, correlationBuffer, &histRange);
+        analyzeVideoStream(cap, config, colorRanges, metrics, meanBuffer);
         printMetrics(metrics);
         writeResultsToCSV(argv[2], metrics);
         std::this_thread::sleep_for(std::chrono::seconds(3));

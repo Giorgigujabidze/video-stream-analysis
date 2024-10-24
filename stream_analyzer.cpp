@@ -2,13 +2,11 @@
 #include "frame_analysis.hpp"
 
 void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::vector<ColorRange> &colorRanges,
-                        Metrics &metrics, std::vector<double> &buffer1, std::vector<double> &buffer2,
-                        const float **histRange) {
+                        Metrics &metrics, std::vector<double> &buffer1) {
     cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     auto start = std::chrono::high_resolution_clock::now();
     int frameCounter = 0;
-    int passedFrameCounter = 0;
-    double threshold = 0;
+
     while (true) {
         if (metrics.blankFrameCount > 10) {
             break;
@@ -25,13 +23,6 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
 
         if (prevGrayFrame.empty()) {
             prevGrayFrame = grayFrame.clone();
-            continue;
-        }
-
-        if (config.keyframesOnly && !isKeyFrame(grayFrame, prevGrayFrame, threshold, histRange,
-                                                config.sizeParameters.histogramSize, passedFrameCounter)) {
-            prevGrayFrame = grayFrame.clone();
-            passedFrameCounter++;
             continue;
         }
 
