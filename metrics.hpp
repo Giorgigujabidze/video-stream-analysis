@@ -22,10 +22,10 @@ struct Metrics {
                                    blankFrameCount, corruptFrameCount);
 };
 
-void writeResultsToJson(const std::string& filename, Metrics& metrics);
-std::vector<Metrics> loadResultsLog(const std::string& filename);
+void writeResultsToCSV(const std::string& filename, Metrics& metrics);
+
 void printMetrics(const Metrics& metrics);
-void filePutContents(const std::string& filename, const nlohmann::json& content, bool append);
+void filePutContents(const std::string& filename, const std::string &content, bool append);
 
 
 

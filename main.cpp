@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
         auto metrics = Metrics{};
         analyzeVideoStream(cap, config, colorRanges, metrics, meanBuffer, correlationBuffer, &histRange);
         printMetrics(metrics);
-        writeResultsToJson(argv[2], metrics);
+        writeResultsToCSV(argv[2], metrics);
         std::this_thread::sleep_for(std::chrono::seconds(3));
     }
 
