@@ -1,7 +1,3 @@
-/test_samples/bunny_1080p_60fps.mp4
-/test_samples/HD_SMPTE_Color_Bars_and_Tone.mp4
-/test_samples/119289-717336867_medium.mp4
-/test_samples/img.png
-/test_samples/output.mp4
+test_samples
 /cmake-build-debug/corrupted_frames
 /cmake-build-debug/coverage
