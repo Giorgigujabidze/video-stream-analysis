@@ -48,13 +48,12 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
                 metrics.colouredStripesDetected = true;
             }
         }
-        cv::imshow("win", downscaledFrame);
 
         prevGrayFrame = grayFrame.clone();
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
         frameCounter++;
-        if (cv::waitKey(3) >0 ||duration.count() >= config.interval) {
+        if (duration.count() >= config.interval) {
             break;
         }
     }
