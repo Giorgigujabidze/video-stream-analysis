@@ -5,12 +5,11 @@
 
 double getSmoothedMSSIM(const std::vector<double> &mssimBuffer, int windowSize = 5) {
     double sum = 0;
-    int count = std::min((int)mssimBuffer.size(), windowSize);
+    const int count = std::min(static_cast<int>(mssimBuffer.size()), windowSize);
     for (int i = mssimBuffer.size() - count; i < mssimBuffer.size(); i++) {
         sum += mssimBuffer[i];
     }
     return sum / count;
-
 }
 
 
@@ -71,15 +70,15 @@ double calculateMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame) {
     return cv::mean(ssim_map)[0];
 }
 
-double calculateMultiscaleMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame) {
-    static const std::vector<double> weights = {0.0448, 0.2856, 0.3001, 0.2363, 0.1333};
+double calculateMultiScaleMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame) {
+    static const std::vector weights = {0.0448, 0.2856, 0.3001, 0.2363, 0.1333};
     double mssim_score = 0.0;
 
     cv::Mat current_scale, prev_scale;
     frame.copyTo(current_scale);
     prevFrame.copyTo(prev_scale);
 
-    for (double weight : weights) {
+    for (const double weight: weights) {
         double mssim = calculateMSSIM(current_scale, prev_scale);
         mssim_score += mssim * weight;
         cv::resize(current_scale, current_scale,
@@ -126,12 +125,13 @@ bool detectBlackFrame(const cv::Mat &frame, const double &threshold) {
     return mean(frame)[0] < threshold;
 }
 
-bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame, const double &threshold, std::vector<double> &buffer,
-                  const int maxBufferSize) {
+bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame, const double &threshold,
+                       std::vector<double> &buffer,
+                       const int maxBufferSize) {
     cv::Mat diff;
     cv::absdiff(frame, prevFrame, diff);
     double bufferAverage = 0;
-    double avgDifference = mean(diff)[0];
+    const double avgDifference = mean(diff)[0];
     if (buffer.size() < maxBufferSize) {
         buffer.push_back(avgDifference);
         return false;
@@ -140,6 +140,6 @@ bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame, const dou
     std::cout << bufferAverage << '\n';
     buffer.clear();
     return bufferAverage < threshold;
-}//
+} //
 // Created by gio on 10/23/24.
 //

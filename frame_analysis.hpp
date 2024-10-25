@@ -19,6 +19,6 @@ double getSmoothedMSSIM(const std::vector<double> &mssimBuffer, int windowSize =
 
 double calculateMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame);
 
-double calculateMultiscaleMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame);
+double calculateMultiScaleMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame);
 
 #endif

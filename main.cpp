@@ -6,13 +6,13 @@
 #include <chrono>
 
 
-int main(int argc, char **argv) {
+int main(const int argc, char **argv) {
     if (argc < 3) {
         std::cerr << "You should specify config file and result file paths";
         return -1;
     }
 
-    Config config = Config{};
+    auto config = Config{};
     if (loadConfigFromJson(argv[1], config) < 0) {
         std::cout << "failed to load config file\n";
         return -1;

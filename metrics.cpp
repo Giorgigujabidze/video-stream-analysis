@@ -10,15 +10,13 @@ void writeResultsToCSV(const std::string &filename, Metrics &metrics) {
     //std::vector<Metrics> results = loadResultsLog(filename);
     metrics.time = buf;
 
-    std::string content;
 
-
-    content =
-            metrics.time + ",  " + std::to_string(metrics.blankFrameCount) + ",  " +
-            std::to_string(metrics.staticFrameCount) +
-            ",  " +
-            std::to_string(metrics.blackFrameCount) + ",  " + std::to_string(metrics.corruptFrameCount) + ",  " +
-            std::to_string(metrics.colouredStripesDetected) + "\n";
+    const std::string content = metrics.time + ",  " + std::to_string(metrics.blankFrameCount) + ",  " +
+                          std::to_string(metrics.staticFrameCount) +
+                          ",  " +
+                          std::to_string(metrics.blackFrameCount) + ",  " + std::to_string(metrics.corruptFrameCount) +
+                          ",  " +
+                          std::to_string(metrics.colouredStripesDetected) + "\n";
 
     filePutContents(filename, content, true);
 }
