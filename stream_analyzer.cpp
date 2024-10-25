@@ -6,7 +6,7 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
     cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     auto start = std::chrono::high_resolution_clock::now();
     int frameCounter = 0;
-
+    std::vector<double> mssimBuffer = {};
     while (true) {
         if (metrics.blankFrameCount > 10) {
             break;
@@ -18,17 +18,23 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
             continue;
         }
 
-        resize(frame, downscaledFrame, cv::Size(600, 400), cv::INTER_AREA);
+        resize(frame, downscaledFrame, cv::Size(600, 400),0,0, cv::INTER_LINEAR);
         cvtColor(downscaledFrame, grayFrame, cv::COLOR_BGR2GRAY);
 
         if (prevGrayFrame.empty()) {
             prevGrayFrame = grayFrame.clone();
             continue;
         }
+        mssimBuffer.push_back(calculateMSSIM(grayFrame, prevGrayFrame));
+        double smoothedMSSSIM = getSmoothedMSSIM(mssimBuffer);
+        if (mssimBuffer.size() > 10){
+            mssimBuffer.clear();
+        }
 
-        double mssim = getMSSIM(grayFrame, prevGrayFrame);
-        if (mssim < 0.4) {
+        if (smoothedMSSSIM < 0.45) {
             metrics.corruptFrameCount++;
+            prevGrayFrame = grayFrame.clone();
+            continue;
         }
 
         if (detectStaticFrame(grayFrame, prevGrayFrame, config.thresholds.staticFrameThreshold, buffer1,
@@ -42,11 +48,13 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
                 metrics.colouredStripesDetected = true;
             }
         }
+        cv::imshow("win", downscaledFrame);
+
         prevGrayFrame = grayFrame.clone();
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
         frameCounter++;
-        if (duration.count() >= config.interval) {
+        if (cv::waitKey(3) >0 ||duration.count() >= config.interval) {
             break;
         }
     }
