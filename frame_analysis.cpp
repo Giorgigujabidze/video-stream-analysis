@@ -3,13 +3,14 @@
 #include "config.hpp"
 
 
-double getSmoothedMSSIM(const std::vector<double> &mssimHistory, int windowSize = 5) {
+double getSmoothedMSSIM(const std::vector<double> &mssimBuffer, int windowSize = 5) {
     double sum = 0;
-    int count = std::min((int)mssimHistory.size(), windowSize);
-    for (int i = mssimHistory.size() - count; i < mssimHistory.size(); i++) {
-        sum += mssimHistory[i];
+    int count = std::min((int)mssimBuffer.size(), windowSize);
+    for (int i = mssimBuffer.size() - count; i < mssimBuffer.size(); i++) {
+        sum += mssimBuffer[i];
     }
     return sum / count;
+
 }
 
 
@@ -116,8 +117,6 @@ bool detectColouredStripes(const cv::Mat &frame, const std::vector<ColorRange> &
 
     if (colouredStripesProbability > threshold1 && stdDevVal[0] < threshold2) {
         cv::imshow("coloured stripes", combinedMask);
-
-
     }
     return colouredStripesProbability > threshold1 && stdDevVal[0] < threshold2;
 }
