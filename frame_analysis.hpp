@@ -15,6 +15,10 @@ bool detectColouredStripes(const cv::Mat &frame,
                            const std::vector<ColorRange> &colorRanges,
                            const double &threshold1, const double &threshold2);
 
-double getMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame);
+double getSmoothedMSSIM(const std::vector<double> &mssimHistory, int windowSize = 5);
+
+double calculateMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame);
+
+double calculateMultiscaleMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame);
 
 #endif
