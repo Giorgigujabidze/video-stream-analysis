@@ -18,7 +18,7 @@ int main(const int argc, char **argv) {
         return -1;
     }
 
-    std::vector<ColorRange> colorRanges = loadColorRangesFromJson(config.colorRangesPath);
+    const std::vector<ColorRange> colorRanges = loadColorRangesFromJson(config.colorRangesPath);
     if (colorRanges.empty()) {
         std::cout << "failed to load color ranges\n";
         return -1;
@@ -26,8 +26,6 @@ int main(const int argc, char **argv) {
     std::vector<double> meanBuffer = {};
     std::vector<double> correlationBuffer = {};
     cv::VideoCapture cap;
-
-
 
     if (!cap.open(config.url, cv::CAP_FFMPEG, {cv::CAP_PROP_HW_ACCELERATION, cv::VIDEO_ACCELERATION_VAAPI})) {
         std::cerr << "Failed to open video stream\n";
