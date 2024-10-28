@@ -25,13 +25,10 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
             prevGrayFrame = grayFrame.clone();
             continue;
         }
-        mssimBuffer.push_back(calculateMSSIM(grayFrame, prevGrayFrame));
-        double smoothedMSSSIM = getSmoothedMSSIM(mssimBuffer);
-        if (mssimBuffer.size() > 10){
-            mssimBuffer.clear();
-        }
 
-        if (smoothedMSSSIM < 0.45) {
+        double blockingScore = calculateBlockingScore(grayFrame);
+
+        if (blockingScore > 0.7) {
             metrics.corruptFrameCount++;
             prevGrayFrame = grayFrame.clone();
             continue;
@@ -48,7 +45,6 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
                 metrics.colouredStripesDetected = true;
             }
         }
-
         prevGrayFrame = grayFrame.clone();
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);

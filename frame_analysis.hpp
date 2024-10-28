@@ -21,4 +21,7 @@ double calculateMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame);
 
 double calculateMultiScaleMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame);
 
+double calculateBlockingScore(const cv::Mat& inputFrame, int blockSize = 8, double edgeThreshold = 150.0) ;
+
+
 #endif

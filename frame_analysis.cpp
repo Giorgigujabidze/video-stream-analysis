@@ -1,9 +1,8 @@
 #include <opencv2/opencv.hpp>
-#include <opencv2/quality/qualityssim.hpp>
 #include "config.hpp"
 
 
-double getSmoothedMSSIM(const std::vector<double> &mssimBuffer, int windowSize = 5) {
+double getSmoothedMSSIM(const std::vector<double> &mssimBuffer, const int windowSize = 10) {
     double sum = 0;
     const int count = std::min(static_cast<int>(mssimBuffer.size()), windowSize);
     for (int i = mssimBuffer.size() - count; i < mssimBuffer.size(); i++) {
@@ -70,6 +69,74 @@ double calculateMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame) {
     return cv::mean(ssim_map)[0];
 }
 
+
+std::vector<cv::Mat> getKirschMasks() {
+    return {
+        (cv::Mat_<float>(3, 3) << 5, 5, 5, -3, 0, -3, -3, -3, -3),
+        (cv::Mat_<float>(3, 3) << -3, 5, 5, -3, 0, 5, -3, -3, -3),
+        (cv::Mat_<float>(3, 3) << -3, -3, 5, -3, 0, 5, -3, -3, 5),
+        (cv::Mat_<float>(3, 3) << -3, -3, -3, -3, 0, 5, -3, 5, 5),
+        (cv::Mat_<float>(3, 3) << -3, -3, -3, -3, 0, -3, 5, 5, 5),
+        (cv::Mat_<float>(3, 3) << -3, -3, -3, 5, 0, -3, 5, 5, -3),
+        (cv::Mat_<float>(3, 3) << 5, -3, -3, 5, 0, -3, 5, -3, -3),
+        (cv::Mat_<float>(3, 3) << 5, 5, -3, 5, 0, -3, -3, -3, -3)
+    };
+}
+
+double calculateBlockingScore(const cv::Mat& gray, const int blockSize = 8, const double edgeThreshold = 130.0) {
+    std::vector<cv::Mat> kirschMasks = getKirschMasks();
+    cv::Mat edges = cv::Mat::zeros(gray.size(), CV_64F);
+
+    for (const auto& mask : kirschMasks) {
+        cv::Mat filtered;
+        cv::filter2D(gray, filtered, CV_64F, mask);
+        cv::max(edges, filtered, edges);
+    }
+
+    cv::Mat normalizedEdges;
+    cv::normalize(edges, normalizedEdges, 0, 255, cv::NORM_MINMAX);
+    normalizedEdges.convertTo(normalizedEdges, CV_8U);
+
+    cv::Mat edgeThresh;
+    cv::adaptiveThreshold(normalizedEdges, edgeThresh, 255,
+                          cv::ADAPTIVE_THRESH_GAUSSIAN_C,
+                          cv::THRESH_BINARY, 11, -2);
+
+    //cv::imshow("Edge Detection", edgeThresh);
+
+    int blockyRegions = 0;
+    int numBlocks = 0;
+
+    int rows = gray.rows - (gray.rows % blockSize);
+    int cols = gray.cols - (gray.cols % blockSize);
+
+    for (int y = 0; y < rows; y += blockSize) {
+        for (int x = 0; x < cols; x += blockSize) {
+            cv::Rect blockRect(x, y, blockSize, blockSize);
+            cv::Mat block = edgeThresh(blockRect);
+
+            int edgePixels = cv::countNonZero(block);
+            double edgeDensity = static_cast<double>(edgePixels) / (blockSize * blockSize);
+
+            cv::Scalar mean, stddev;
+            cv::meanStdDev(block, mean, stddev);
+
+            if (edgeDensity > 0.20 && stddev[0] < edgeThreshold) {
+                blockyRegions++;
+            }
+            numBlocks++;
+        }
+    }
+
+    double blockScore = static_cast<double>(blockyRegions) / numBlocks;
+
+    //std::cout << "Blocky regions: " << blockyRegions << "/" << numBlocks << std::endl;
+    //std::cout << "Block score: " << blockScore << std::endl;
+
+    return blockScore;
+}
+
+
 double calculateMultiScaleMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame) {
     static const std::vector weights = {0.0448, 0.2856, 0.3001, 0.2363, 0.1333};
     double mssim_score = 0.0;
@@ -79,7 +146,7 @@ double calculateMultiScaleMSSIM(const cv::Mat &frame, const cv::Mat &prevFrame) 
     prevFrame.copyTo(prev_scale);
 
     for (const double weight: weights) {
-        double mssim = calculateMSSIM(current_scale, prev_scale);
+        const double mssim = calculateMSSIM(current_scale, prev_scale);
         mssim_score += mssim * weight;
         cv::resize(current_scale, current_scale,
                    cv::Size(current_scale.cols / 2, current_scale.rows / 2),
@@ -109,8 +176,8 @@ bool detectColouredStripes(const cv::Mat &frame, const std::vector<ColorRange> &
     cv::Scalar meanVal, stdDevVal;
     cv::meanStdDev(colorDistributions, meanVal, stdDevVal);
 
-    double scalingFactor = 100.0 / colorRanges.size();
-    double colouredStripesProbability = (meanVal[0] / scalingFactor) * 100;
+    const double scalingFactor = 100.0 / colorRanges.size();
+    const double colouredStripesProbability = (meanVal[0] / scalingFactor) * 100;
 
     std::cout << "combinedMask: " << colouredStripesProbability << "%\n";
 
@@ -121,7 +188,6 @@ bool detectColouredStripes(const cv::Mat &frame, const std::vector<ColorRange> &
 }
 
 bool detectBlackFrame(const cv::Mat &frame, const double &threshold) {
-    std::cout << "mean: " << mean(frame)[0] << "\n";
     return mean(frame)[0] < threshold;
 }
 
@@ -137,9 +203,6 @@ bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame, const dou
         return false;
     }
     bufferAverage = cv::mean(buffer)[0];
-    std::cout << bufferAverage << '\n';
     buffer.clear();
     return bufferAverage < threshold;
-} //
-// Created by gio on 10/23/24.
-//
+}
