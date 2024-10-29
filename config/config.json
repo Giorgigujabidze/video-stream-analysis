@@ -1,7 +1,9 @@
 {
-  "url": "https://tbs01-edge17.itdc.ge/erimedia/tracks-v1a1/mono.m3u8?token=m4WhAH2K_itkz4ofRP8xPo3RE3RwJe484xefBogkOKC3ZG2rZWUltdaGwP1mZ8AE_0UUqnsnLCirR0UB3g896z4_KM2X2KtWmCke_RljOwkDGCilxLdy2PUUk-XEqRk3x-L7lazMdLfSIbEtGLGDdx94xfji0JkQSCEwo6_sgZRX_QVFkSZ5lVm1Ga7eENQWYNueQKfNSeq_93OSrpaSybzljJtPrAZ4h9fcMWxJqtUqFmqTmsKm-GLD0vuFw8KT5PLKjHWkOJwL82y1lYMIy1l2PRzzn13gyZtG9Xvfb96YqKlOYZmrD3YVoF-Yznch",
+  "url": "",
   "color_ranges_path": "./color_ranges.json",
   "corrupted_frames_path": "./corrupted_frames/",
+  "hardware_acceleration":  3,
+  "max_log_number": 1000,
   "interval": 30,
   "thresholds": {
     "static_frame_threshold": 0.1,

@@ -4,9 +4,8 @@
 void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::vector<ColorRange> &colorRanges,
                         Metrics &metrics, std::vector<double> &buffer1) {
     cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
     int frameCounter = 0;
-    std::vector<double> mssimBuffer = {};
     while (true) {
         if (metrics.blankFrameCount > 10) {
             break;
@@ -18,7 +17,7 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
             continue;
         }
 
-        resize(frame, downscaledFrame, cv::Size(600, 400),0,0, cv::INTER_LINEAR);
+        resize(frame, downscaledFrame, cv::Size(600, 400), 0, 0, cv::INTER_LINEAR);
         cvtColor(downscaledFrame, grayFrame, cv::COLOR_BGR2GRAY);
 
         if (prevGrayFrame.empty()) {
@@ -26,13 +25,6 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
             continue;
         }
 
-        double blockingScore = calculateBlockingScore(grayFrame);
-
-        if (blockingScore > 0.7) {
-            metrics.corruptFrameCount++;
-            prevGrayFrame = grayFrame.clone();
-            continue;
-        }
 
         if (detectStaticFrame(grayFrame, prevGrayFrame, config.thresholds.staticFrameThreshold, buffer1,
                               config.sizeParameters.maxMeanBufferSize)) {

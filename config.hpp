@@ -25,6 +25,8 @@ struct Config {
     std::string url;
     std::string colorRangesPath;
     std::string corruptedFramesPath;
+    int hardware_acceleration;
+    int max_log_number;
     Thresholds thresholds;
     SizeParameters sizeParameters;
     time_t interval;

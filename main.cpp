@@ -23,11 +23,12 @@ int main(const int argc, char **argv) {
         std::cout << "failed to load color ranges\n";
         return -1;
     }
+    int logCount = 0;
     std::vector<double> meanBuffer = {};
     std::vector<double> correlationBuffer = {};
     cv::VideoCapture cap;
 
-    if (!cap.open(config.url, cv::CAP_FFMPEG, {cv::CAP_PROP_HW_ACCELERATION, cv::VIDEO_ACCELERATION_VAAPI})) {
+    if (!cap.open(config.url, cv::CAP_FFMPEG, {cv::CAP_PROP_HW_ACCELERATION, config.hardware_acceleration})) {
         std::cerr << "Failed to open video stream\n";
         return -1;
     }
@@ -37,7 +38,7 @@ int main(const int argc, char **argv) {
         auto metrics = Metrics{};
         analyzeVideoStream(cap, config, colorRanges, metrics, meanBuffer);
         printMetrics(metrics);
-        writeResultsToCSV(argv[2], metrics);
+        writeResultsToCSV(argv[2], metrics, config.max_log_number, logCount);
         std::this_thread::sleep_for(std::chrono::seconds(3));
     }
 
