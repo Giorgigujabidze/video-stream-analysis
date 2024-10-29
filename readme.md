@@ -1,4 +1,4 @@
-## Dependencies:
+# Dependencies:
 ```bash
 
 sudo apt update
@@ -61,7 +61,7 @@ sudo ldconfig
 
 ```
 
-## Build  opencv from source:
+#  Build  opencv from source:
 
 ```bash
 
@@ -98,7 +98,27 @@ cmake ..
 make
 ```
 
-## Usage:
+# Configuration options:
+
+## Hardware acceleration:
+
+>Do not require any specific H/W acceleration, prefer software processing.
+"hardware_acceleration": 0
+
+
+>Prefer to use H/W acceleration. If no one supported, then fallback to software processing.
+"hardware_acceleration": 1
+
+>DirectX 11
+"hardware_acceleration": 2
+
+>VAAPI
+"hardware_acceleration": 3
+
+>ibmfx (Intel MediaSDK/oneVPL)
+"hardware_acceleration": 4
+
+# Usage:
 
 ```bash
 cd cmake-build-debug
