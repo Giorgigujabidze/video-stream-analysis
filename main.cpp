@@ -23,7 +23,7 @@ int main(const int argc, char **argv) {
         std::cout << "failed to load color ranges\n";
         return -1;
     }
-    int logCount = 0;
+
     std::vector<double> meanBuffer = {};
     std::vector<double> correlationBuffer = {};
     cv::VideoCapture cap;
@@ -38,10 +38,9 @@ int main(const int argc, char **argv) {
         auto metrics = Metrics{};
         analyzeVideoStream(cap, config, colorRanges, metrics, meanBuffer);
         printMetrics(metrics);
-        writeResultsToCSV(argv[2], metrics, config.max_log_number, logCount);
+        writeResultsToCSV(argv[2], metrics, config.max_log_number);
         std::this_thread::sleep_for(std::chrono::seconds(3));
     }
 
     return 0;
 }
-

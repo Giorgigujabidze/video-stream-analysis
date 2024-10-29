@@ -23,8 +23,6 @@ bool detectColouredStripes(const cv::Mat &frame, const std::vector<ColorRange> &
     const double scalingFactor = 100.0 / colorRanges.size();
     const double colouredStripesProbability = (meanVal[0] / scalingFactor) * 100;
 
-    std::cout << "combinedMask: " << colouredStripesProbability << "%\n";
-
     if (colouredStripesProbability > threshold1 && stdDevVal[0] < threshold2) {
         cv::imshow("coloured stripes", combinedMask);
     }

@@ -22,11 +22,14 @@ struct Metrics {
                                    blankFrameCount, corruptFrameCount);
 };
 
-void writeResultsToCSV(const std::string &filename, Metrics &metrics, int maxLogNumber, int &logCount);
+void writeResultsToCSV(const std::string &filename, Metrics &metrics, int maxLogNumber);
 
 void printMetrics(const Metrics &metrics);
 
 void filePutContents(const std::string &filename, const std::string &content, bool append);
 
+std::string getTimeString();
+
+int getLogCount(const std::string &filename);
 
 #endif //STREAM_ANALYSIS_METRICS_HPP
