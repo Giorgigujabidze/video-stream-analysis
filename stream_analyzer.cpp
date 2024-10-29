@@ -5,7 +5,6 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
                         Metrics &metrics, std::vector<double> &buffer1) {
     cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     const auto start = std::chrono::high_resolution_clock::now();
-    int frameCounter = 0;
     while (true) {
         if (metrics.blankFrameCount > 10) {
             break;
@@ -40,7 +39,6 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
         prevGrayFrame = grayFrame.clone();
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
-        frameCounter++;
         if (duration.count() >= config.interval) {
             break;
         }
