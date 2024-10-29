@@ -24,6 +24,8 @@ sudo apt install -y \
   texinfo \
   wget \
   yasm \
+  nasm \
+  libvpl-dev \
   zlib1g-dev \
   intel-media-va-driver-non-free \
   vainfo
