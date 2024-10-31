@@ -2,7 +2,6 @@
 #include "config.hpp"
 
 
-
 bool detectColouredStripes(const cv::Mat &frame, const std::vector<ColorRange> &colorRanges, const double &threshold1,
                            const double &threshold2) {
     cv::Mat hsvFrame;
@@ -23,9 +22,6 @@ bool detectColouredStripes(const cv::Mat &frame, const std::vector<ColorRange> &
     const double scalingFactor = 100.0 / colorRanges.size();
     const double colouredStripesProbability = (meanVal[0] / scalingFactor) * 100;
 
-    if (colouredStripesProbability > threshold1 && stdDevVal[0] < threshold2) {
-        cv::imshow("coloured stripes", combinedMask);
-    }
     return colouredStripesProbability > threshold1 && stdDevVal[0] < threshold2;
 }
 
@@ -40,10 +36,12 @@ bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame, const dou
     cv::absdiff(frame, prevFrame, diff);
     double bufferAverage = 0;
     const double avgDifference = mean(diff)[0];
+
     if (buffer.size() < maxBufferSize) {
         buffer.push_back(avgDifference);
         return false;
     }
+
     bufferAverage = cv::mean(buffer)[0];
     buffer.clear();
     return bufferAverage < threshold;
