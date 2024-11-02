@@ -1,3 +1,0 @@
-/home/gio/CLionProjects/untitled8/cmake-build-debug/CMakeFiles/stream_analysis.dir
-/home/gio/CLionProjects/untitled8/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/gio/CLionProjects/untitled8/cmake-build-debug/CMakeFiles/rebuild_cache.dir
