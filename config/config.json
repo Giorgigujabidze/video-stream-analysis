@@ -1,7 +1,6 @@
 {
-  "url": "",
-  "color_ranges_path": "./color_ranges.json",
-  "corrupted_frames_path": "./corrupted_frames/",
+  "url": "/home/gio/CLionProjects/untitled8/test_samples/bunny_1080p_60fps.mp4",
+  "color_ranges_path": "/home/gio/CLionProjects/untitled8/color_ranges/color_ranges.json",
   "hardware_acceleration":  3,
   "max_log_number": 1000,
   "interval": 30,
@@ -9,8 +8,7 @@
     "static_frame_threshold": 0.1,
     "coloured_stripes_threshold": 85,
     "coloured_stripes_max_deviation": 10,
-    "black_frame_threshold": 15,
-    "artifact_detection_threshold": 0.7
+    "black_frame_threshold": 15
   },
   "size_parameters": {
     "max_mean_buffer_size": 10

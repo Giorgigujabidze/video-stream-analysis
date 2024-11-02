@@ -25,14 +25,14 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
         }
 
 
-        if (detectStaticFrame(grayFrame, prevGrayFrame, config.thresholds.staticFrameThreshold, buffer1,
-                              config.sizeParameters.maxMeanBufferSize)) {
+        if (detectStaticFrame(grayFrame, prevGrayFrame, config.thresholds.static_frame_threshold, buffer1,
+                              config.size_parameters.max_mean_buffer_size)) {
             metrics.staticFrameCount++;
-            if (detectBlackFrame(grayFrame, config.thresholds.blackFrameThreshold)) {
+            if (detectBlackFrame(grayFrame, config.thresholds.black_frame_threshold)) {
                 metrics.blackFrameCount++;
             } else if (!metrics.colouredStripesDetected &&
-                       detectColouredStripes(downscaledFrame, colorRanges, config.thresholds.colouredStripesThreshold,
-                                             config.thresholds.colouredStripesMaxDeviation)) {
+                       detectColouredStripes(downscaledFrame, colorRanges, config.thresholds.coloured_stripes_threshold,
+                                             config.thresholds.coloured_stripes_max_deviation)) {
                 metrics.colouredStripesDetected = true;
             }
         }

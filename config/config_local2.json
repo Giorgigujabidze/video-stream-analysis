@@ -1,7 +1,6 @@
 {
   "url": "",
   "color_ranges_path": "./color_ranges.json",
-  "corrupted_frames_path": "./corrupted_frames/",
   "hardware_acceleration":  3,
   "max_log_number": 1000,
   "interval": 30,

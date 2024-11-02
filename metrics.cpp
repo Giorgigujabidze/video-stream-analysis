@@ -9,9 +9,7 @@ void writeResultsToCSV(const std::string &filename, Metrics &metrics, const int 
     const std::string content = metrics.time + ",  " + std::to_string(metrics.blankFrameCount) + ",  " +
                                 std::to_string(metrics.staticFrameCount) +
                                 ",  " +
-                                std::to_string(metrics.blackFrameCount) + ",  " + std::to_string(
-                                    metrics.corruptFrameCount) +
-                                ",  " +
+                                std::to_string(metrics.blackFrameCount) + ",  " +
                                 std::to_string(metrics.colouredStripesDetected) + "\n";
 
     filePutContents(filename, content, logCount < maxLogNumber);
@@ -23,8 +21,7 @@ void printMetrics(const Metrics &metrics) {
             << "Colored Stripes Detected: " << metrics.colouredStripesDetected << std::endl
             << "Black Frames: " << metrics.blackFrameCount << std::endl
             << "Static Frames: " << metrics.staticFrameCount << std::endl
-            << "Blank Frames: " << metrics.blankFrameCount << std::endl
-            << "Corrupt Frames: " << metrics.corruptFrameCount << std::endl;
+            << "Blank Frames: " << metrics.blankFrameCount << std::endl;
 }
 
 void filePutContents(const std::string &filename, const std::string &content, const bool append = false) {

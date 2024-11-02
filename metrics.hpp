@@ -15,11 +15,6 @@ struct Metrics {
     int blackFrameCount;
     int staticFrameCount;
     int blankFrameCount;
-    int corruptFrameCount;
-
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Metrics, time, colouredStripesDetected,
-                                   blackFrameCount, staticFrameCount,
-                                   blankFrameCount, corruptFrameCount);
 };
 
 void writeResultsToCSV(const std::string &filename, Metrics &metrics, int maxLogNumber);

@@ -14,21 +14,9 @@ int loadConfigFromJson(const std::string &filename, Config &config) {
         return -1;
     }
 
-    config.url = j["url"];
-    config.colorRangesPath = j["color_ranges_path"];
-    config.corruptedFramesPath = j["corrupted_frames_path"];
-    config.hardware_acceleration = j["hardware_acceleration"];
-    config.max_log_number = j["max_log_number"];
-    config.interval = j["interval"];
-    config.thresholds = {
-            j["thresholds"]["static_frame_threshold"],
-            j["thresholds"]["coloured_stripes_threshold"],
-            j["thresholds"]["coloured_stripes_max_deviation"],
-            j["thresholds"]["black_frame_threshold"],
-    };
-    config.sizeParameters = {
-            j["size_parameters"]["max_mean_buffer_size"],
-    };
+    config= j;
+
+    std::cout << config.color_ranges_path;
     return 0;
 }
 

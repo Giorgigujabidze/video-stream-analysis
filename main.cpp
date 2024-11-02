@@ -18,7 +18,7 @@ int main(const int argc, char **argv) {
         return -1;
     }
 
-    const std::vector<ColorRange> colorRanges = loadColorRangesFromJson(config.colorRangesPath);
+    const std::vector<ColorRange> colorRanges = loadColorRangesFromJson(config.color_ranges_path);
     if (colorRanges.empty()) {
         std::cout << "failed to load color ranges\n";
         return -1;

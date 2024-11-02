@@ -11,25 +11,29 @@
 #include <nlohmann/json.hpp>
 
 struct Thresholds {
-    double staticFrameThreshold;
-    double colouredStripesThreshold;
-    double colouredStripesMaxDeviation;
-    double blackFrameThreshold;
+    double static_frame_threshold;
+    double coloured_stripes_threshold;
+    double coloured_stripes_max_deviation;
+    double black_frame_threshold;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Thresholds, static_frame_threshold, coloured_stripes_threshold,
+                                   coloured_stripes_max_deviation, black_frame_threshold);
 };
 
 struct SizeParameters {
-    int maxMeanBufferSize;
+    int max_mean_buffer_size;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(SizeParameters, max_mean_buffer_size);
 };
 
 struct Config {
     std::string url;
-    std::string colorRangesPath;
-    std::string corruptedFramesPath;
+    std::string color_ranges_path;
     int hardware_acceleration;
     int max_log_number;
     Thresholds thresholds;
-    SizeParameters sizeParameters;
+    SizeParameters size_parameters;
     time_t interval;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Config, url, color_ranges_path,
+                                   hardware_acceleration, max_log_number, thresholds, size_parameters, interval);
 };
 
 struct ColorRange {
@@ -38,7 +42,8 @@ struct ColorRange {
     cv::Scalar upper;
 };
 
-int loadConfigFromJson(const std::string& filename, Config& config);
-std::vector<ColorRange> loadColorRangesFromJson(const std::string& filename);
+int loadConfigFromJson(const std::string &filename, Config &config);
+
+std::vector<ColorRange> loadColorRangesFromJson(const std::string &filename);
 
 #endif //STREAM_ANALYSIS_CONFIG_HPP
