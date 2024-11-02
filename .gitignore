@@ -1,4 +1,4 @@
 test_samples
-/cmake-build-debug/
 /config/config.json
 /config/config_local2.json
+/cmake-build-debug/
