@@ -14,15 +14,14 @@ int loadConfigFromJson(const std::string &filename, Config &config) {
         return -1;
     }
 
-    config= j;
+    config = j;
 
-    std::cout << config.color_ranges_path;
     return 0;
 }
 
 std::vector<ColorRange> loadColorRangesFromJson(const std::string &filename) {
     std::ifstream file(filename);
-    nlohmann::json  j;
+    nlohmann::json j;
     std::vector<ColorRange> colorRanges;
 
     try {
@@ -34,10 +33,10 @@ std::vector<ColorRange> loadColorRangesFromJson(const std::string &filename) {
 
     for (auto &range: j["colorRanges"]) {
         colorRanges.push_back({
-                                      range["name"],
-                                      cv::Scalar(range["lower"]["h"], range["lower"]["s"], range["lower"]["v"]),
-                                      cv::Scalar(range["upper"]["h"], range["upper"]["s"], range["upper"]["v"])
-                              });
+            range["name"],
+            cv::Scalar(range["lower"]["h"], range["lower"]["s"], range["lower"]["v"]),
+            cv::Scalar(range["upper"]["h"], range["upper"]["s"], range["upper"]["v"])
+        });
     }
     return colorRanges;
 }
