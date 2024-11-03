@@ -1,11 +1,11 @@
 {
-  "url": "/home/gio/CLionProjects/untitled8/test_samples/bunny_1080p_60fps.mp4",
+  "url": "udp://0.0.0.0:1232",
   "color_ranges_path": "/home/gio/CLionProjects/untitled8/color_ranges/color_ranges.json",
   "hardware_acceleration":  3,
   "max_log_number": 1000,
   "interval": 30,
   "thresholds": {
-    "static_frame_threshold": 0.1,
+    "static_frame_threshold": 0.06,
     "coloured_stripes_threshold": 85,
     "coloured_stripes_max_deviation": 10,
     "black_frame_threshold": 15
