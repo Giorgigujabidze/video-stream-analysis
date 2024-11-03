@@ -12,6 +12,7 @@ RHEL 9.
 - [JSON Library Installation](#json-library-installation)
 - [Building the Project](#building-the-project)
 - [Usage](#usage)
+- [ Understanding Results](#understanding-results)
 - [Configuration Options](#configuration-options)
 
 ## Prerequisites
@@ -150,6 +151,38 @@ Run the stream analysis tool:
 cd build
 ./stream_analysis config.json results.csv
 ```
+
+### Understanding Results
+
+The tool outputs its analysis results to a CSV file (results.csv). Each line in the output file represents a
+single analysis period with the following format:
+
+```
+timestamp, blank_frame_count, static_frame_count, black_frame_count, coloured_stripes_detected
+```
+
+#### Column Descriptions
+
+| Column                    | Type          | Description                                             |
+|---------------------------|---------------|---------------------------------------------------------|
+| timestamp                 | string        | ISO formatted timestamp of the analysis period          |
+| blank_frame_count         | integer       | Number of blank frames detected in this period          |
+| static_frame_count        | integer       | Number of static (frozen) frames detected               |
+| black_frame_count         | integer       | Number of black frames detected                         |
+| coloured_stripes_detected | boolean (0/1) | Whether colored stripes were detected (1 = yes, 0 = no) |
+
+#### Example Output
+
+```csv
+2024-03-15T14:30:00,  0,  11,  0,  0
+2024-03-15T14:30:30,  5,  0,  2,  1
+```
+
+In this example:
+
+- First row: At 14:30:00, there were no blank frames, 11 static frames, no black frames, and no colored stripes
+- Second row: At 14:30:30, there were 5 blank frames, no static frames, 2 black frames, and colored stripes were
+  detected
 
 ## Configuration Options
 
