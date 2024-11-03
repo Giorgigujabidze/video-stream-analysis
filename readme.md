@@ -153,9 +153,21 @@ cd build
 
 ## Configuration Options
 
+The stream analysis tool is configured using a JSON configuration file. Here's a complete reference of all available
+options:
+
+### Basic Settings
+
+| Parameter         | Description                               | Type    |
+|-------------------|-------------------------------------------|---------|
+| url               | Input stream URL (e.g., UDP endpoint)     | string  |
+| color_ranges_path | Path to the color ranges definition file  | string  |
+| max_log_number    | Maximum number of log entries to maintain | integer |
+| interval          | Analysis interval in seconds              | integer |
+
 ### Hardware Acceleration Settings
 
-The `hardware_acceleration` parameter in the configuration file accepts the following values:
+The `hardware_acceleration` parameter accepts the following values:
 
 | Value | Description                                                     |
 |-------|-----------------------------------------------------------------|
@@ -165,10 +177,42 @@ The `hardware_acceleration` parameter in the configuration file accepts the foll
 | 3     | VAAPI                                                           |
 | 4     | Intel MediaSDK/oneVPL (MFX)                                     |
 
-Example configuration:
+### Analysis Thresholds
+
+The `thresholds` object contains various threshold settings for analysis:
+
+| Parameter                      | Description                                    | Type  |
+|--------------------------------|------------------------------------------------|-------|
+| static_frame_threshold         | Threshold for detecting static frames          | float |
+| coloured_stripes_threshold     | Threshold for colored stripe detection         | float |
+| coloured_stripes_max_deviation | Maximum allowed deviation for stripe detection | float |
+| black_frame_threshold          | Threshold for black frame detection            | float |
+
+### Size Parameters
+
+The `size_parameters` object contains buffer size configurations:
+
+| Parameter            | Description                           | Type    |
+|----------------------|---------------------------------------|---------|
+| max_mean_buffer_size | Maximum size of the mean value buffer | integer |
+
+### Example Configuration
 
 ```json
 {
-  "hardware_acceleration": 1
+  "url": "udp://0.0.0.0:1232",
+  "color_ranges_path": "/path/to/color_ranges.json",
+  "hardware_acceleration": 1,
+  "max_log_number": 1000,
+  "interval": 30,
+  "thresholds": {
+    "static_frame_threshold": 0.06,
+    "coloured_stripes_threshold": 85,
+    "coloured_stripes_max_deviation": 10,
+    "black_frame_threshold": 15
+  },
+  "size_parameters": {
+    "max_mean_buffer_size": 10
+  }
 }
 ```
