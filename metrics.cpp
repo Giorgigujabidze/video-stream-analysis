@@ -6,7 +6,8 @@ void writeResultsToCSV(const std::string &filename, Metrics &metrics, const int 
     const int logCount = getLogCount(filename);
     metrics.time = getTimeString();
 
-    const std::string content = metrics.time + ",  " + std::to_string(metrics.blankFrameCount) + ",  " +
+    const std::string content = metrics.time + ",  " + std::to_string(metrics.noInputStream) + ",  " + std::to_string(
+                                    metrics.blankFrameCount) + ",  " +
                                 std::to_string(metrics.staticFrameCount) +
                                 ",  " +
                                 std::to_string(metrics.blackFrameCount) + ",  " +
@@ -18,6 +19,7 @@ void writeResultsToCSV(const std::string &filename, Metrics &metrics, const int 
 
 void printMetrics(const Metrics &metrics) {
     std::cout << "Time: " << getTimeString() << std::endl
+            << "No Input Stream: " << metrics.noInputStream << std::endl
             << "Colored Stripes Detected: " << metrics.colouredStripesDetected << std::endl
             << "Black Frames: " << metrics.blackFrameCount << std::endl
             << "Static Frames: " << metrics.staticFrameCount << std::endl

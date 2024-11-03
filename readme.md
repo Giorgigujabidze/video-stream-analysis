@@ -163,25 +163,28 @@ timestamp, blank_frame_count, static_frame_count, black_frame_count, coloured_st
 
 #### Column Descriptions
 
-| Column                    | Type          | Description                                             |
-|---------------------------|---------------|---------------------------------------------------------|
-| timestamp                 | string        | ISO formatted timestamp of the analysis period          |
-| blank_frame_count         | integer       | Number of blank frames detected in this period          |
-| static_frame_count        | integer       | Number of static (frozen) frames detected               |
-| black_frame_count         | integer       | Number of black frames detected                         |
-| coloured_stripes_detected | boolean (0/1) | Whether colored stripes were detected (1 = yes, 0 = no) |
+| Column                    | Type          | Description                                               |
+|---------------------------|---------------|-----------------------------------------------------------|
+| timestamp                 | string        | ISO formatted timestamp of the analysis period            |
+| no_input_stream           | string        | Whether no input stream is detected  (1 = yes, 0  = no  ) |
+| blank_frame_count         | integer       | Number of blank frames detected in this period            |
+| static_frame_count        | integer       | Number of static (frozen) frames detected                 |
+| black_frame_count         | integer       | Number of black frames detected                           |
+| coloured_stripes_detected | boolean (0/1) | Whether colored stripes were detected (1 = yes, 0 = no)   |
 
 #### Example Output
 
 ```csv
-2024-03-15T14:30:00,  0,  11,  0,  0
-2024-03-15T14:30:30,  5,  0,  2,  1
+2024-03-15T14:30:00,  1, 0,  11,  0,  0
+2024-03-15T14:30:30,  0, 5,  0,  2,  1
 ```
 
 In this example:
 
-- First row: At 14:30:00, there were no blank frames, 11 static frames, no black frames, and no colored stripes
-- Second row: At 14:30:30, there were 5 blank frames, no static frames, 2 black frames, and colored stripes were
+- First row: At 14:30:00,stream has no input and is odd, there were no blank frames, 11 static frames, no black frames,
+  and no colored stripes
+- Second row: At 14:30:30, stream has input and functions normally, there were 5 blank frames, no static frames, 2 black
+  frames, and colored stripes were
   detected
 
 ## Configuration Options

@@ -18,6 +18,7 @@ int analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::v
     const auto start = std::chrono::high_resolution_clock::now();
     while (true) {
         if (metrics.blankFrameCount > 10) {
+            metrics.noInputStream = true;
             return -1;
         }
 

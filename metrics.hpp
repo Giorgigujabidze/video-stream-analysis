@@ -11,10 +11,11 @@
 
 struct Metrics {
     std::string time;
-    bool colouredStripesDetected;
     int blackFrameCount;
     int staticFrameCount;
     int blankFrameCount;
+    bool colouredStripesDetected;
+    bool noInputStream;
 };
 
 void writeResultsToCSV(const std::string &filename, Metrics &metrics, int maxLogNumber);
