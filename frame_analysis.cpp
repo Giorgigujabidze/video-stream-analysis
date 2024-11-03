@@ -34,6 +34,7 @@ bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame, const dou
                        const int maxBufferSize) {
     cv::Mat diff;
     cv::absdiff(frame, prevFrame, diff);
+
     double bufferAverage = 0;
     const double avgDifference = mean(diff)[0];
 
@@ -44,5 +45,6 @@ bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame, const dou
 
     bufferAverage = cv::mean(buffer)[0];
     buffer.clear();
+    std::cout << "buffer average: " << bufferAverage << '\n';
     return bufferAverage < threshold;
 }

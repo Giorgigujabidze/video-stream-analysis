@@ -6,6 +6,8 @@
 #include <chrono>
 
 
+
+
 int main(const int argc, char **argv) {
     if (argc < 3) {
         std::cerr << "You should specify config file and result file paths";
@@ -28,19 +30,20 @@ int main(const int argc, char **argv) {
     std::vector<double> correlationBuffer = {};
     cv::VideoCapture cap;
 
-    if (!cap.open(config.url, cv::CAP_FFMPEG, {cv::CAP_PROP_HW_ACCELERATION, config.hardware_acceleration})) {
-        std::cerr << "Failed to open video stream\n";
-        return -1;
-    }
+    openVideoStream(cap,config);
 
     std::cout << "Starting to grab frames\n";
     while (true) {
         auto metrics = Metrics{};
-        analyzeVideoStream(cap, config, colorRanges, metrics, meanBuffer);
+        const int resp = analyzeVideoStream(cap, config, colorRanges, metrics, meanBuffer);
         printMetrics(metrics);
         writeResultsToCSV(argv[2], metrics, config.max_log_number);
+        if (resp < 0) {
+            cap.release();
+            openVideoStream(cap, config);
+        }
         std::this_thread::sleep_for(std::chrono::seconds(3));
     }
-
     return 0;
 }
+

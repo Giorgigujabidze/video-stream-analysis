@@ -1,13 +1,24 @@
 #include "stream_analyzer.hpp"
 #include "frame_analysis.hpp"
 
-void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::vector<ColorRange> &colorRanges,
+
+
+void openVideoStream(cv::VideoCapture &cap, Config &config) {
+    if (!cap.open(config.url, cv::CAP_FFMPEG, {cv::CAP_PROP_HW_ACCELERATION, config.hardware_acceleration})) {
+        std::cerr << "Failed to open video stream\n";
+        cap.release();
+        exit(1);
+    }
+}
+
+
+int analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::vector<ColorRange> &colorRanges,
                         Metrics &metrics, std::vector<double> &buffer1) {
     cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     const auto start = std::chrono::high_resolution_clock::now();
     while (true) {
         if (metrics.blankFrameCount > 10) {
-            break;
+            return -1;
         }
 
         if (!cap.read(frame)) {
@@ -36,11 +47,12 @@ void analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::
                 metrics.colouredStripesDetected = true;
             }
         }
+        cv::imshow("win",downscaledFrame);
         prevGrayFrame = grayFrame.clone();
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
-        if (duration.count() >= config.interval) {
-            break;
+        if (cv::waitKey(1) > 0 || duration.count() >= config.interval) {
+            return 0;
         }
     }
 }
