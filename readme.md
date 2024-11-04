@@ -89,6 +89,7 @@ sudo ldconfig
 # Configure library path
 echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/local-lib.conf
 sudo ldconfig
+cd ..
 ```
 
 ## Building OpenCV
