@@ -167,7 +167,7 @@ timestamp, blank_frame_count, static_frame_count, black_frame_count, coloured_st
 | Column                    | Type          | Description                                               |
 |---------------------------|---------------|-----------------------------------------------------------|
 | timestamp                 | string        | ISO formatted timestamp of the analysis period            |
-| no_input_stream           | string        | Whether no input stream is detected  (1 = yes, 0  = no  ) |
+| no_input_stream           | bool          | Whether no input stream is detected  (1 = yes, 0  = no  ) |
 | blank_frame_count         | integer       | Number of blank frames detected in this period            |
 | static_frame_count        | integer       | Number of static (frozen) frames detected                 |
 | black_frame_count         | integer       | Number of black frames detected                           |
