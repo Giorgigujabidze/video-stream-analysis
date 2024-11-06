@@ -32,8 +32,9 @@ struct Config {
     Thresholds thresholds;
     SizeParameters size_parameters;
     time_t interval;
+    bool output_to_console;
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Config, url, color_ranges_path,
-                                   hardware_acceleration, max_log_number, thresholds, size_parameters, interval);
+                                   hardware_acceleration, max_log_number, thresholds, size_parameters, interval, output_to_console);
 };
 
 struct ColorRange {

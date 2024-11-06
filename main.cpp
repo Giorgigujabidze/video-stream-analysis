@@ -36,7 +36,9 @@ int main(const int argc, char **argv) {
     while (true) {
         auto metrics = Metrics{};
         const int resp = analyzeVideoStream(cap, config, colorRanges, metrics, meanBuffer);
-        printMetrics(metrics);
+        if (config.output_to_console) {
+            printMetrics(metrics);
+        }
         writeResultsToCSV(argv[2], metrics, config.max_log_number);
         if (resp < 0) {
             cap.release();

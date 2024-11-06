@@ -167,14 +167,14 @@ timestamp, blank_frame_count, static_frame_count, black_frame_count, coloured_st
 
 #### Column Descriptions
 
-| Column                    | Type          | Description                                               |
-|---------------------------|---------------|-----------------------------------------------------------|
-| timestamp                 | string        | ISO formatted timestamp of the analysis period            |
-| no_input_stream           | boolean       | Whether no input stream is detected  (1 = yes, 0  = no  ) |
-| blank_frame_count         | integer       | Number of blank frames detected in this period            |
-| static_frame_count        | integer       | Number of static (frozen) frames detected                 |
-| black_frame_count         | integer       | Number of black frames detected                           |
-| coloured_stripes_detected | boolean (0/1) | Whether colored stripes were detected (1 = yes, 0 = no)   |
+| Column                    | Type            | Description                                               |
+|---------------------------|-----------------|-----------------------------------------------------------|
+| timestamp                 | string          | ISO formatted timestamp of the analysis period            |
+| no_input_stream           | boolean   (0/1) | Whether no input stream is detected  (1 = yes, 0  = no  ) |
+| blank_frame_count         | integer         | Number of blank frames detected in this period            |
+| static_frame_count        | integer         | Number of static (frozen) frames detected                 |
+| black_frame_count         | integer         | Number of black frames detected                           |
+| coloured_stripes_detected | boolean (0/1)   | Whether colored stripes were detected (1 = yes, 0 = no)   |
 
 #### Example Output
 
@@ -204,6 +204,7 @@ options:
 | color_ranges_path | Path to the color ranges definition file  | string  |
 | max_log_number    | Maximum number of log entries to maintain | integer |
 | interval          | Analysis interval in seconds              | integer |
+| output_to_console | option to log results to console          | boolean |
 
 ### Hardware Acceleration Settings
 
@@ -243,10 +244,11 @@ The `size_parameters` object contains buffer size configurations:
 ```json
 {
   "url": "udp://0.0.0.0:1232",
-  "color_ranges_path": "/path/to/color_ranges.json",
-  "hardware_acceleration": 1,
+  "color_ranges_path": "/home/gio/CLionProjects/untitled8/color_ranges/color_ranges.json",
+  "hardware_acceleration": 3,
   "max_log_number": 1000,
   "interval": 30,
+  "output_to_console": false,
   "thresholds": {
     "static_frame_threshold": 0.06,
     "coloured_stripes_threshold": 85,
@@ -257,4 +259,5 @@ The `size_parameters` object contains buffer size configurations:
     "max_mean_buffer_size": 10
   }
 }
+
 ```
