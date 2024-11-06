@@ -146,6 +146,9 @@ make
 
 ## Usage
 
+Before running the tool, check that settings are correct in config.json
+such as color_ranges_path and hardware_acceleration settings.
+
 Run the stream analysis tool:
 
 ```bash
@@ -213,6 +216,8 @@ The `hardware_acceleration` parameter accepts the following values:
 | 2     | DirectX 11                                                      |
 | 3     | VAAPI                                                           |
 | 4     | Intel MediaSDK/oneVPL (MFX)                                     |
+
+use 1 for better compatibility
 
 ### Analysis Thresholds
 
