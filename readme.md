@@ -135,6 +135,8 @@ sudo dnf install nlohmann-json-devel
 
 ## Building the Project
 
+you can build this project from source or [download a release tar](https://github.com/Giorgigujabidze/video-stream-analysis/releases)
+
 Build the stream analysis tool:
 
 ```bash
