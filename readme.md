@@ -81,7 +81,7 @@ sudo dnf install -y gstreamer1-libav
 ### opencv setup
 
 ```bash
-  sudo dnf install opencv opencv-devel
+sudo dnf install opencv opencv-devel
 ```
 
 ### note
