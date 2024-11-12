@@ -7,6 +7,7 @@ RHEL 9.
 
 - [Prerequisites](#prerequisites)
 - [Dependencies Installation](#dependencies-installation)
+- [Using gstreamer backand with opencv (easier installation)](#using-gstreamer-backand-with-opencv-easier-installation)
 - [Building FFmpeg](#building-ffmpeg)
 - [Building OpenCV](#building-opencv)
 - [JSON Library Installation](#json-library-installation)
