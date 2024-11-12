@@ -58,6 +58,38 @@ sudo dnf install \
     libvdpau-devel -y
 ```
 
+## Using gstreamer backand with opencv (easier installation)
+
+### Gstreamer setup
+
+this plugins should already be on rhel 9 if not
+install:
+
+```bash
+sudo dnf install -y gstreamer1-plugins-base
+sudo dnf install -y gstreamer1-plugins-good
+sudo dnf install -y gstreamer1-plugins-bad-free
+
+```
+
+install necessary dependency
+
+```bash
+sudo dnf install -y gstreamer1-libav
+```
+
+### opencv setup
+
+```bash
+  sudo dnf install opencv opencv-devel
+```
+
+### note
+
+if you use gstreamer backand with opencv there is
+no need to build ffmpeg and opencv from source, in config
+file, change api backand. see [configuration options.](#configuration-options)
+
 ## Building FFmpeg
 
 Clone and build FFmpeg with custom configuration:
@@ -255,8 +287,8 @@ The `size_parameters` object contains buffer size configurations:
 {
   "url": "rtp://@233.3.4.98:4098",
   "color_ranges_path": "/home/gio/CLionProjects/untitled8/color_ranges/color_ranges.json",
-  "api_backend":1900 ,
-  "hardware_acceleration":  0,
+  "api_backend": 1900,
+  "hardware_acceleration": 0,
   "max_log_number": 1000,
   "interval": 30,
   "output_to_console": false,
