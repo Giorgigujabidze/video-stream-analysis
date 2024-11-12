@@ -28,13 +28,14 @@ struct Config {
     std::string url;
     std::string color_ranges_path;
     int hardware_acceleration;
+    int api_backend;
     int max_log_number;
     Thresholds thresholds;
     SizeParameters size_parameters;
     time_t interval;
     bool output_to_console;
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Config, url, color_ranges_path,
-                                   hardware_acceleration, max_log_number, thresholds, size_parameters, interval, output_to_console);
+                                   hardware_acceleration,api_backend, max_log_number, thresholds, size_parameters, interval, output_to_console);
 };
 
 struct ColorRange {

@@ -135,7 +135,8 @@ sudo dnf install nlohmann-json-devel
 
 ## Building the Project
 
-you can build this project from source or [download a release tar](https://github.com/Giorgigujabidze/video-stream-analysis/releases)
+you can build this project from source
+or [download a release tar](https://github.com/Giorgigujabidze/video-stream-analysis/releases)
 
 Build the stream analysis tool:
 
@@ -221,6 +222,13 @@ The `hardware_acceleration` parameter accepts the following values:
 | 4     | Intel MediaSDK/oneVPL (MFX)                                     |
 
 use 1 for better compatibility
+
+### Api backend settings
+
+| Value | Description           |
+|-------|-----------------------|
+| 1800  | use gstreamer backend |
+| 1900  | use ffmpeg backend    |
 
 ### Analysis Thresholds
 

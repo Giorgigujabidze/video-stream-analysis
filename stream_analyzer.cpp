@@ -4,7 +4,7 @@
 
 
 void openVideoStream(cv::VideoCapture &cap, Config &config) {
-    if (!cap.open(config.url, cv::CAP_FFMPEG, {cv::CAP_PROP_HW_ACCELERATION, config.hardware_acceleration})) {
+if (!cap.open(config.url, config.api_backend, {cv::CAP_PROP_HW_ACCELERATION, config.hardware_acceleration})) {
         std::cerr << "Failed to open video stream\n";
         cap.release();
         exit(1);
@@ -13,7 +13,7 @@ void openVideoStream(cv::VideoCapture &cap, Config &config) {
 
 
 int analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::vector<ColorRange> &colorRanges,
-                        Metrics &metrics, std::vector<double> &buffer1) {
+                       Metrics &metrics, std::vector<double> &buffer1) {
     cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     const auto start = std::chrono::high_resolution_clock::now();
     while (true) {
