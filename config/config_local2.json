@@ -1,17 +1,19 @@
 {
-  "url": "",
-  "color_ranges_path": "./color_ranges.json",
-  "hardware_acceleration":  3,
+  "url": "rtp://@233.3.4.98:4098",
+  "color_ranges_path": "/home/gio/CLionProjects/untitled8/color_ranges/color_ranges.json",
+  "api_backend": 1900,
+  "hardware_acceleration": 0,
+  "process_every_nth_frame": 4,
   "max_log_number": 1000,
   "interval": 30,
+  "output_to_console": true,
   "thresholds": {
-    "static_frame_threshold": 0.1,
+    "static_frame_threshold": 0.05,
     "coloured_stripes_threshold": 85,
     "coloured_stripes_max_deviation": 10,
-    "black_frame_threshold": 15,
-    "artifact_detection_threshold": 0.7
+    "black_frame_threshold": 15
   },
   "size_parameters": {
-    "max_mean_buffer_size": 10
+    "max_mean_buffer_size": 15
   }
 }
