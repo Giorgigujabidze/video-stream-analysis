@@ -2,9 +2,8 @@
 #include "frame_analysis.hpp"
 
 
-
 void openVideoStream(cv::VideoCapture &cap, Config &config) {
-if (!cap.open(config.url, config.api_backend, {cv::CAP_PROP_HW_ACCELERATION, config.hardware_acceleration})) {
+    if (!cap.open(config.url, config.api_backend, {cv::CAP_PROP_HW_ACCELERATION, config.hardware_acceleration})) {
         std::cerr << "Failed to open video stream\n";
         cap.release();
         exit(1);
@@ -16,43 +15,55 @@ int analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::v
                        Metrics &metrics, std::vector<double> &buffer1) {
     cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     const auto start = std::chrono::high_resolution_clock::now();
+    int frameCount = 0;
     while (true) {
         if (metrics.blankFrameCount > 10) {
             metrics.noInputStream = true;
             return -1;
         }
 
-        if (!cap.read(frame)) {
+        if (!cap.grab()) {
             std::cerr << "Blank frame grabbed\n";
             metrics.blankFrameCount++;
             continue;
         }
+        if (frameCount % config.process_every_nth_frame == 0) {
 
-        resize(frame, downscaledFrame, cv::Size(600, 400), 0, 0, cv::INTER_LINEAR);
-        cvtColor(downscaledFrame, grayFrame, cv::COLOR_BGR2GRAY);
+            cap.retrieve(frame);
 
-        if (prevGrayFrame.empty()) {
-            prevGrayFrame = grayFrame.clone();
-            continue;
-        }
-
-
-        if (detectStaticFrame(grayFrame, prevGrayFrame, config.thresholds.static_frame_threshold, buffer1,
-                              config.size_parameters.max_mean_buffer_size)) {
-            metrics.staticFrameCount++;
-            if (detectBlackFrame(grayFrame, config.thresholds.black_frame_threshold)) {
-                metrics.blackFrameCount++;
-            } else if (!metrics.colouredStripesDetected &&
-                       detectColouredStripes(downscaledFrame, colorRanges, config.thresholds.coloured_stripes_threshold,
-                                             config.thresholds.coloured_stripes_max_deviation)) {
-                metrics.colouredStripesDetected = true;
+            if (frame.empty()) {
+                std::cerr << "Empty frame\n";
+                metrics.blankFrameCount++;
+                continue;
             }
+
+            resize(frame, downscaledFrame, cv::Size(600, 400), 0, 0, cv::INTER_LINEAR);
+            cvtColor(downscaledFrame, grayFrame, cv::COLOR_BGR2GRAY);
+
+            if (prevGrayFrame.empty()) {
+                prevGrayFrame = grayFrame.clone();
+                continue;
+            }
+
+            if (detectStaticFrame(grayFrame, prevGrayFrame, config.thresholds.static_frame_threshold, buffer1,
+                                  config.size_parameters.max_mean_buffer_size)) {
+                metrics.staticFrameCount++;
+                if (detectBlackFrame(grayFrame, config.thresholds.black_frame_threshold)) {
+                    metrics.blackFrameCount++;
+                } else if (!metrics.colouredStripesDetected &&
+                           detectColouredStripes(downscaledFrame, colorRanges,
+                                                 config.thresholds.coloured_stripes_threshold,
+                                                 config.thresholds.coloured_stripes_max_deviation)) {
+                    metrics.colouredStripesDetected = true;
+                }
+            }
+            prevGrayFrame = grayFrame.clone();
         }
-        prevGrayFrame = grayFrame.clone();
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
         if (duration.count() >= config.interval) {
             return 0;
         }
+        frameCount++;
     }
 }

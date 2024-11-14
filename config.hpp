@@ -27,15 +27,16 @@ struct SizeParameters {
 struct Config {
     std::string url;
     std::string color_ranges_path;
-    int hardware_acceleration;
     int api_backend;
+    int hardware_acceleration;
+    int process_every_nth_frame;
     int max_log_number;
     Thresholds thresholds;
     SizeParameters size_parameters;
     time_t interval;
     bool output_to_console;
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Config, url, color_ranges_path,
-                                   hardware_acceleration,api_backend, max_log_number, thresholds, size_parameters, interval, output_to_console);
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Config, url, color_ranges_path,api_backend,
+                                   hardware_acceleration,process_every_nth_frame,max_log_number, thresholds, size_parameters, interval, output_to_console);
 };
 
 struct ColorRange {

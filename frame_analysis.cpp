@@ -26,6 +26,7 @@ bool detectColouredStripes(const cv::Mat &frame, const std::vector<ColorRange> &
 }
 
 bool detectBlackFrame(const cv::Mat &frame, const double &threshold) {
+    std::cout  << "blackFrame: "<< mean(frame) << std::endl;
     return mean(frame)[0] < threshold;
 }
 
@@ -44,7 +45,7 @@ bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame, const dou
     }
 
     bufferAverage = cv::mean(buffer)[0];
-
+    std::cout << "bufferAverage: " << bufferAverage << std::endl;
     buffer.clear();
     return bufferAverage < threshold;
 }
