@@ -242,6 +242,13 @@ options:
 | interval          | Analysis interval in seconds              | integer |
 | output_to_console | option to log results to console          | boolean |
 
+### Api Backend Settings
+
+| Value | Description           |
+|-------|-----------------------|
+| 1800  | use gstreamer backend |
+| 1900  | use ffmpeg backend    |
+
 ### Hardware Acceleration Settings
 
 The `hardware_acceleration` parameter accepts the following values:
@@ -256,12 +263,11 @@ The `hardware_acceleration` parameter accepts the following values:
 
 use 1 for better compatibility
 
-### Api backend settings
+### Frame Processing Settings
 
-| Value | Description           |
-|-------|-----------------------|
-| 1800  | use gstreamer backend |
-| 1900  | use ffmpeg backend    |
+| Value | Description                                                                                     |
+|-------|-------------------------------------------------------------------------------------------------|
+| 1-5   | program will process every value-th frame. could be higher, but may introduce some inaccuracies |
 
 ### Analysis Thresholds
 
@@ -290,9 +296,10 @@ The `size_parameters` object contains buffer size configurations:
   "color_ranges_path": "/home/gio/CLionProjects/untitled8/color_ranges/color_ranges.json",
   "api_backend": 1900,
   "hardware_acceleration": 0,
+  "process_every_nth_frame": 1,
   "max_log_number": 1000,
   "interval": 30,
-  "output_to_console": false,
+  "output_to_console": true,
   "thresholds": {
     "static_frame_threshold": 0.05,
     "coloured_stripes_threshold": 85,
@@ -300,7 +307,8 @@ The `size_parameters` object contains buffer size configurations:
     "black_frame_threshold": 15
   },
   "size_parameters": {
-    "max_mean_buffer_size": 30
+    "max_mean_buffer_size": 15
   }
 }
+
 ```
