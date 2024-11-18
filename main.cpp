@@ -10,8 +10,19 @@
 
 int main(const int argc, char **argv) {
     if (argc < 3) {
-        std::cerr << "You should specify config file and result file paths";
+        std::cerr << "Incorrect number of arguments" << std::endl
+        << "Usages: " << std::endl
+        << argv[0] << " <config_file> <output_file>" << std::endl
+        << argv[0]<< " <-c> <data_file>" << std::endl;
         return -1;
+    }
+
+    if (std::string(argv[1]) == "-c") {
+        std::vector<StreamData> streamDataVector;
+        readDataFromFile(argv[2], streamDataVector);
+        configMaker("../config/config.json", streamDataVector);
+        std::cout << "configs where successfully generated\n";
+        return 0;
     }
 
     auto config = Config{};

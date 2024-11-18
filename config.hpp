@@ -45,8 +45,24 @@ struct ColorRange {
     cv::Scalar upper;
 };
 
+struct StreamData {
+    std::string lid;
+    std::string name;
+    std::string id;
+    std::string status;
+    std::string main_source;
+    std::string in_multicast;
+    std::string out_multicast;
+};
+
 int loadConfigFromJson(const std::string &filename, Config &config);
 
 std::vector<ColorRange> loadColorRangesFromJson(const std::string &filename);
+
+void readDataFromFile(const std::string &filename, std::vector<StreamData> &streamDataVector);
+
+void configMaker(const std::string &filename, const std::vector<StreamData>&);
+
+void writeConfig(const std::string &url, Config &config, const StreamData &data, const std::string &flag);
 
 #endif //STREAM_ANALYSIS_CONFIG_HPP

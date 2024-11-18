@@ -3,7 +3,6 @@
 
 #include <opencv2/opencv.hpp>
 #include "config.hpp"
-#include "metrics.hpp"
 
 bool detectBlackFrame(const cv::Mat &frame, const double &threshold);
 
