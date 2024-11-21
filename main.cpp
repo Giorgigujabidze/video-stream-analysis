@@ -7,15 +7,14 @@
 
 
 int main(const int argc, char **argv) {
-    if (argc < 3) {
-        std::cerr << "Incorrect number of arguments" << std::endl
-                << "usages: " << std::endl
-                << argv[0] << " <config_file> <output_file>" << std::endl
+    if (argc > 1 && std::string_view(argv[1]) == "--help") {
+        std::cout << "usages: " << std::endl
+                << argv[0] << std::endl
                 << argv[0] << " <-c> <data_file>" << std::endl;
         return -1;
     }
 
-    if (std::string_view(argv[1]) == "-c") {
+    if (argc > 1 && std::string_view(argv[1]) == "-c") {
         std::vector<StreamData> streamDataVector;
         readDataFromFile(argv[2], streamDataVector);
         if (configMaker("../config/config.json", streamDataVector) < 0) {
@@ -27,7 +26,7 @@ int main(const int argc, char **argv) {
     }
 
     auto configs = Configs{};
-    if (readConfigsFromJson("../config/configs.json", configs)< 0) {
+    if (readConfigsFromJson("../config/configs.json", configs) < 0) {
         return -1;
     }
 

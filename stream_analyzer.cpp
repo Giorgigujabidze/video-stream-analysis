@@ -82,11 +82,10 @@ void *analyzeVideoStream(void *threadArgs) {
                 }
             }
             prevGrayFrame = grayFrame.clone();
-            cv::imshow("win" + args->config.name, downscaledFrame);
         }
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
-        if (cv::waitKey(1) >= 1 || duration.count() >= args->config.interval) {
+        if (duration.count() >= args->config.interval) {
             writeResultsToJson(filename, metrics);
             frameCount = 0;
             meanBuffer.erase(meanBuffer.begin(), meanBuffer.end());
