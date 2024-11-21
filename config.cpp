@@ -1,7 +1,7 @@
 #include "config.hpp"
 #include <fstream>
 #include <iostream>
-#include <unordered_set>
+#include <set>
 
 #include "metrics.hpp"
 
@@ -81,7 +81,7 @@ int configMaker(const std::string &filename, const std::vector<StreamData> &stre
         return -1;
     }
     std::string prevLid;
-    std::pmr::unordered_set<std::string> multicastSet;
+    std::set<std::string> multicastSet;
     for (auto &data: streamDataVector) {
         if (data.status == "NO") {
             continue;
