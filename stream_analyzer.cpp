@@ -21,7 +21,6 @@ void *analyzeVideoStream(void *threadArgs) {
         return nullptr;
     }
     std::string filename = "../results/results" + args->config.name + ".json";
-    std::cout << args->config.url << "\n";
     cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     auto start = std::chrono::high_resolution_clock::now();
     int frameCount = 0;
