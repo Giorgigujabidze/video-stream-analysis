@@ -3,12 +3,10 @@
 
 #include <opencv2/opencv.hpp>
 #include "config.hpp"
-#include "metrics.hpp"
 
-void openVideoStream(cv::VideoCapture &cap, Config &config);
+int openVideoStream(cv::VideoCapture &cap, Config &config);
 
 
-int analyzeVideoStream(cv::VideoCapture &cap, const Config &config, const std::vector<ColorRange> &colorRanges,
-                        Metrics &metrics, std::vector<double> &buffer1);
+void *analyzeVideoStream(void *threadArgs);
 
 #endif // STREAM_ANALYSIS_STREAM_ANALYZER_HPP

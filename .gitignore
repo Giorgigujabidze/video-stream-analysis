@@ -3,3 +3,4 @@ test_samples
 /config/config_local2.json
 /cmake-build-debug
 /build
+data.csv

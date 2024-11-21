@@ -1,6 +1,6 @@
 {
+  "name": "",
   "url": "rtp://@233.3.4.98:4098",
-  "color_ranges_path": "/home/gio/CLionProjects/untitled8/color_ranges/color_ranges.json",
   "api_backend": 1900,
   "hardware_acceleration": 0,
   "process_every_nth_frame": 4,

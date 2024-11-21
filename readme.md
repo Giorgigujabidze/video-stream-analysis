@@ -185,12 +185,19 @@ make
 Before running the tool, check that settings are correct in config.json
 such as color_ranges_path and hardware_acceleration settings.
 
+Run the stream analysis tool in config generation mode:
+
+```bash
+./stream_analysis -c data.csv
+```
+
 Run the stream analysis tool:
 
 ```bash
-cd build
 ./stream_analysis config.json results.csv
 ```
+to run program on batch of files use script provided in release, or
+in source code
 
 ### Understanding Results
 

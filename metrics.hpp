@@ -10,15 +10,17 @@
 #include <nlohmann/json.hpp>
 
 struct Metrics {
-    std::string time;
-    int blackFrameCount;
-    int staticFrameCount;
-    int blankFrameCount;
-    bool colouredStripesDetected;
-    bool noInputStream;
+    int black_frame_count;
+    int static_frame_count;
+    int blank_frame_count;
+    bool coloured_stripes_detected;
+    bool no_input_stream;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Metrics, black_frame_count, static_frame_count, blank_frame_count,
+                                   coloured_stripes_detected, no_input_stream)
 };
 
-void writeResultsToCSV(const std::string &filename, Metrics &metrics, int maxLogNumber);
+
+void writeResultsToJson(const std::string &filename, const Metrics &metrics);
 
 void printMetrics(const Metrics &metrics);
 

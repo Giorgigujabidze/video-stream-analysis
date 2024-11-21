@@ -2,28 +2,25 @@
 #include "fstream"
 #include "iostream"
 
-void writeResultsToCSV(const std::string &filename, Metrics &metrics, const int maxLogNumber) {
-    const int logCount = getLogCount(filename);
-    metrics.time = getTimeString();
 
-    const std::string content = metrics.time + ",  " + std::to_string(metrics.noInputStream) + ",  " + std::to_string(
-                                    metrics.blankFrameCount) + ",  " +
-                                std::to_string(metrics.staticFrameCount) +
-                                ",  " +
-                                std::to_string(metrics.blackFrameCount) + ",  " +
-                                std::to_string(metrics.colouredStripesDetected) + "\n";
-
-    filePutContents(filename, content, logCount < maxLogNumber);
-}
 
 
 void printMetrics(const Metrics &metrics) {
     std::cout << "Time: " << getTimeString() << std::endl
-            << "No Input Stream: " << metrics.noInputStream << std::endl
-            << "Colored Stripes Detected: " << metrics.colouredStripesDetected << std::endl
-            << "Black Frames: " << metrics.blackFrameCount << std::endl
-            << "Static Frames: " << metrics.staticFrameCount << std::endl
-            << "Blank Frames: " << metrics.blankFrameCount << std::endl;
+            << "No Input Stream: " << metrics.no_input_stream << std::endl
+            << "Colored Stripes Detected: " << metrics.coloured_stripes_detected << std::endl
+            << "Black Frames: " << metrics.black_frame_count << std::endl
+            << "Static Frames: " << metrics.static_frame_count << std::endl
+            << "Blank Frames: " << metrics.blank_frame_count << std::endl;
+}
+
+void writeResultsToJson(const std::string &filename,const Metrics &metrics) {
+    nlohmann::json j;
+    std::ofstream outfile(filename);
+
+    j = metrics;
+
+    outfile << j.dump(4);
 }
 
 void filePutContents(const std::string &filename, const std::string &content, const bool append = false) {
@@ -43,10 +40,4 @@ std::string getTimeString() {
     char buf[sizeof "2011-10-08T07:07:09Z"];
     strftime(buf, sizeof buf, "%F %T", localtime(&now));
     return buf;
-}
-
-
-int getLogCount(const std::string &filename) {
-    std::ifstream f(filename);
-    return std::count(std::istream_iterator<char>(f >> std::noskipws), {}, '\n');
 }

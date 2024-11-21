@@ -3,6 +3,8 @@
 #include <iostream>
 #include <unordered_set>
 
+#include "metrics.hpp"
+
 
 int loadConfigFromJson(const std::string &filename, Config &config) {
     std::ifstream file(filename);
@@ -50,8 +52,6 @@ void readDataFromFile(const std::string &filename, std::vector<StreamData> &stre
     std::vector<std::string> tokenVector;
     std::getline(file, line);
 
-    //std::cout << line << std::endl;
-
     while (std::getline(file, line)) {
         std::stringstream ss(line);
         while (std::getline(ss, token, ',')) {
@@ -60,7 +60,7 @@ void readDataFromFile(const std::string &filename, std::vector<StreamData> &stre
             }
             tokenVector.push_back(token);
         }
-        // std::cout << std::endl;
+
         streamData.lid = tokenVector[0];
         streamData.name = tokenVector[1];
         streamData.id = tokenVector[2];
@@ -68,20 +68,18 @@ void readDataFromFile(const std::string &filename, std::vector<StreamData> &stre
         streamData.main_source = tokenVector[4];
         streamData.in_multicast = tokenVector[5];
         streamData.out_multicast = tokenVector[6];
-        //std::cout << tokenVector[4] << "----" << tokenVector[5] << "----" << tokenVector[6] << '\n';
 
         tokenVector.clear();
         streamDataVector.push_back(streamData);
     }
-
-    /* for (auto &data: streamDataVector) {
-         std::cout << data.name << std::endl;
-     }*/
 }
 
-void configMaker(const std::string &filename, const std::vector<StreamData> &streamDataVector) {
+int configMaker(const std::string &filename, const std::vector<StreamData> &streamDataVector) {
     Config config = {};
-    loadConfigFromJson(filename, config);
+    Configs configs = {};
+    if (loadConfigFromJson(filename, config) < 0) {
+        return -1;
+    }
     std::string prevLid;
     std::pmr::unordered_set<std::string> multicastSet;
     for (auto &data: streamDataVector) {
@@ -90,25 +88,40 @@ void configMaker(const std::string &filename, const std::vector<StreamData> &str
         }
         std::string urlIn = "udp://" + data.in_multicast;
         std::string urlOut = "udp://" + data.out_multicast;
-        /*if (multicastSet.contains(urlIn)) {
-            std::cout << urlIn << std::endl;
-        }*/
-       if (!multicastSet.contains(urlIn)) {
-            writeConfig(urlIn, config, data, "_in_");
-            //std::cout << urlIn << std::endl;
+
+        if (!multicastSet.contains(urlIn)) {
+            config.name = "_in_" + data.id;
+            config.url = urlIn;
+            configs.configs.push_back(config);
         }
 
         multicastSet.insert(urlIn);
 
-        writeConfig(urlOut, config, data, "_out_");
+        config.name = "_out_" + data.id;
+        config.url = urlOut;
+        configs.configs.push_back(config);
     }
+    writeConfigToJson("../config/configs.json", configs);
+    return 0;
 }
 
-void writeConfig(const std::string &url, Config &config, const StreamData &data, const std::string &flag) {
+
+void writeConfigToJson(const std::string &filename, const Configs &configs) {
+    std::ofstream file(filename);
     nlohmann::json j;
-    config.url = url;
-    j = config;
-    std::ofstream file("../config/config" + flag + data.id + ".json");
-    //std::cout << j["url"] << '\n';
-    file << j.dump();
+    j = configs;
+    file << j.dump(4);
+}
+
+int readConfigsFromJson(const std::string &filename, Configs &configs) {
+    std::ifstream file(filename);
+    nlohmann::json j;
+    try {
+        file >> j;
+    } catch (nlohmann::json::parse_error &e) {
+        std::cout << e.what() << '\n';
+        return -1;
+    }
+    configs = j;
+    return 0;
 }
