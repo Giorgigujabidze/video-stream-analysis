@@ -3,8 +3,6 @@
 #include "iostream"
 
 
-
-
 void printMetrics(const Metrics &metrics) {
     std::cout << "Time: " << getTimeString() << std::endl
             << "No Input Stream: " << metrics.no_input_stream << std::endl
@@ -14,23 +12,13 @@ void printMetrics(const Metrics &metrics) {
             << "Blank Frames: " << metrics.blank_frame_count << std::endl;
 }
 
-void writeResultsToJson(const std::string &filename,const Metrics &metrics) {
+void writeResultsToJson(const std::string &filename, const Metrics &metrics) {
     nlohmann::json j;
     std::ofstream outfile(filename);
 
     j = metrics;
 
     outfile << j.dump(4);
-}
-
-void filePutContents(const std::string &filename, const std::string &content, const bool append = false) {
-    std::ofstream outfile;
-    if (append) {
-        outfile.open(filename, std::ios_base::app);
-    } else {
-        outfile.open(filename, std::ios_base::trunc);
-    }
-    outfile << content;
 }
 
 

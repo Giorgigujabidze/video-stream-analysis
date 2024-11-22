@@ -17,5 +17,7 @@ add_executable(stream_analysis main.cpp
         frame_analysis.cpp
         stream_analyzer.cpp
         threading.hpp
+        helpers.hpp
+        helpers.cpp
 )
 target_link_libraries(stream_analysis ${OpenCV_LIBS} pthread)

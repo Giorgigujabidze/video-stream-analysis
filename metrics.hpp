@@ -24,8 +24,6 @@ void writeResultsToJson(const std::string &filename, const Metrics &metrics);
 
 void printMetrics(const Metrics &metrics);
 
-void filePutContents(const std::string &filename, const std::string &content, bool append);
-
 std::string getTimeString();
 
 int getLogCount(const std::string &filename);

@@ -30,13 +30,12 @@ struct Config {
     int api_backend;
     int hardware_acceleration;
     int process_every_nth_frame;
-    int max_log_number;
     Thresholds thresholds;
     SizeParameters size_parameters;
     time_t interval;
     bool output_to_console;
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Config, name, url, api_backend,
-                                   hardware_acceleration, process_every_nth_frame, max_log_number, thresholds,
+                                   hardware_acceleration, process_every_nth_frame, thresholds,
                                    size_parameters, interval, output_to_console);
 };
 

@@ -1,12 +1,16 @@
 #include "stream_analyzer.hpp"
+#include <fstream>
 #include "frame_analysis.hpp"
 #include "metrics.hpp"
 #include "threading.hpp"
-
+#include "helpers.hpp"
 
 int openVideoStream(cv::VideoCapture &cap, Config &config) {
-    if (!cap.open(config.url, config.api_backend, {cv::CAP_PROP_HW_ACCELERATION, config.hardware_acceleration})) {
+    if (!cap.open(config.url, config.api_backend, {
+                      cv::CAP_PROP_HW_ACCELERATION, config.hardware_acceleration, cv::CAP_PROP_OPEN_TIMEOUT_MSEC, 30000
+                  })) {
         std::cerr << "failed to open video stream\n";
+        filePutContents("../failed_streams/failed_streams.txt", config.url + "\n", true);
         cap.release();
         return -1;
     }
@@ -17,9 +21,11 @@ int openVideoStream(cv::VideoCapture &cap, Config &config) {
 void *analyzeVideoStream(void *threadArgs) {
     const auto args = static_cast<ThreadArguments *>(threadArgs);
     cv::VideoCapture cap;
+
     if (openVideoStream(cap, args->config) < 0) {
         return nullptr;
     }
+
     std::string filename = "../results/results" + args->config.name + ".json";
     cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     auto start = std::chrono::high_resolution_clock::now();
@@ -30,15 +36,17 @@ void *analyzeVideoStream(void *threadArgs) {
     while (true) {
         if (metrics.blank_frame_count > 10) {
             metrics.no_input_stream = true;
-            std::cerr << "connection lost. attempting to reconnect..." << std::endl;
+            std::cerr << "connection lost. attempting to reconnect to: " << args->config.url << std::endl;
             cap.release();
             writeResultsToJson(filename, metrics);
+
             while (true) {
                 if (openVideoStream(cap, args->config) >= 0) {
                     std::cout << "reconnected\n";
                     metrics = Metrics{};
                     break;
                 }
+
                 std::cerr << "failed to reconnect\n";
                 sleep(5);
             }
@@ -50,6 +58,7 @@ void *analyzeVideoStream(void *threadArgs) {
             metrics.blank_frame_count++;
             continue;
         }
+
         if (frameCount % args->config.process_every_nth_frame == 0) {
             cap.retrieve(frame);
 
@@ -82,8 +91,10 @@ void *analyzeVideoStream(void *threadArgs) {
             }
             prevGrayFrame = grayFrame.clone();
         }
+
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
+
         if (duration.count() >= args->config.interval) {
             writeResultsToJson(filename, metrics);
             frameCount = 0;
@@ -91,6 +102,7 @@ void *analyzeVideoStream(void *threadArgs) {
             metrics = Metrics{};
             start = std::chrono::high_resolution_clock::now();
         }
+
         frameCount++;
     }
 }

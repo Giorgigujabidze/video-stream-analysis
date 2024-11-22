@@ -4,25 +4,27 @@
 #include <iostream>
 #include <pthread.h>
 #include "threading.hpp"
-
+#include "helpers.hpp"
 
 int main(const int argc, char **argv) {
-    if (argc > 1 && std::string_view(argv[1]) == "--help") {
-        std::cout << "usages: " << std::endl
-                << argv[0] << std::endl
-                << argv[0] << " <-c> <data_file>" << std::endl;
+    programSetup();
+
+    int n = 0;
+
+    if (argc == 2 && std::string_view(argv[1]) == "--help") {
+        getHelp(argv[0]);
         return -1;
     }
 
-    if (argc > 1 && std::string_view(argv[1]) == "-c") {
-        std::vector<StreamData> streamDataVector;
-        readDataFromFile(argv[2], streamDataVector);
-        if (configMaker("../config/config.json", streamDataVector) < 0) {
-            std::cerr << "failed to read sample config file\n";
+    if (argc == 3 && std::string_view(argv[1]) == "-c") {
+        if (startConfigMaker(argv[2]) < 0) {
             return -1;
         }
-        std::cout << "configs where successfully generated\n";
         return 0;
+    }
+
+    if (argc == 3 && std::string_view(argv[1]) == "-n") {
+        n = atoi(argv[2]);
     }
 
     auto configs = Configs{};
@@ -38,18 +40,23 @@ int main(const int argc, char **argv) {
 
     std::vector threads(configs.configs.size(), pthread_t{});
 
-    std::cout << "starting to grab frames\n";
-    for (int i = 0; i < configs.configs.size(); i++) {
+    if (n == 0) {
+        n = configs.configs.size();
+    }
+
+    for (int i = 0; i < n; i++) {
         auto threadArgs = new ThreadArguments{
-            .config = configs.configs[i], .colorRanges = colorRanges,
+            .config = configs.configs[i], .colorRanges = colorRanges
         };
         if (pthread_create(&threads[i], nullptr, analyzeVideoStream, threadArgs) != 0) {
             std::cerr << "failed to create thread for config: " << configs.configs[i].name << std::endl;
             delete threadArgs;
         }
     }
+    std::cout << "starting to grab frames\n";
     for (const auto &thread: threads) {
         pthread_join(thread, nullptr);
     }
+
     return 0;
 }
