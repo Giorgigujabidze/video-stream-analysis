@@ -61,13 +61,10 @@ void readDataFromFile(const std::string &filename, std::vector<StreamData> &stre
             tokenVector.push_back(token);
         }
 
-        streamData.lid = tokenVector[0];
-        streamData.name = tokenVector[1];
-        streamData.id = tokenVector[2];
-        streamData.status = tokenVector[3];
-        streamData.main_source = tokenVector[4];
-        streamData.in_multicast = tokenVector[5];
-        streamData.out_multicast = tokenVector[6];
+        streamData = {
+            .lid = tokenVector[0], .name = tokenVector[1], .id = tokenVector[2], .status = tokenVector[3],
+            .main_source = tokenVector[4], .in_multicast = tokenVector[5], .out_multicast = tokenVector[6]
+        };
 
         tokenVector.clear();
         streamDataVector.push_back(streamData);
@@ -77,17 +74,21 @@ void readDataFromFile(const std::string &filename, std::vector<StreamData> &stre
 int configMaker(const std::string &filename, const std::vector<StreamData> &streamDataVector) {
     Config config = {};
     Configs configs = {};
+
     if (loadConfigFromJson(filename, config) < 0) {
         return -1;
     }
+
     std::string prevLid;
     std::set<std::string> multicastSet;
+
     for (auto &data: streamDataVector) {
         if (data.status == "NO") {
             continue;
         }
-        std::string urlIn = "udp://" + data.in_multicast;
-        std::string urlOut = "udp://" + data.out_multicast;
+
+        const std::string urlIn = "udp://" + data.in_multicast;
+        const std::string urlOut = "udp://" + data.out_multicast;
 
         if (!multicastSet.contains(urlIn)) {
             config.name = "_in_" + data.id;

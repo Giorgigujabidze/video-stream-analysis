@@ -21,7 +21,6 @@ void writeResultsToJson(const std::string &filename, const Metrics &metrics) {
     outfile << j.dump(4);
 }
 
-
 std::string getTimeString() {
     time_t now;
     time(&now);

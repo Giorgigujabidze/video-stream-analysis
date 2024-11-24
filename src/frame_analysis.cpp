@@ -47,3 +47,5 @@ bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame, const dou
     buffer.clear();
     return bufferAverage < threshold;
 }
+
+
