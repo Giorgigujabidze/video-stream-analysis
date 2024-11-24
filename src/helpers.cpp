@@ -21,12 +21,12 @@ void getHelp(const std::string &name) {
             << name << " <-c> <data_file>" << std::endl;
 }
 
-int startConfigMaker(const std::string &filename) {
+int startStreamsFileMaker(const std::string &filename) {
     std::vector<StreamData> streamDataVector;
     readDataFromFile(filename, streamDataVector);
 
-    if (configMaker("../sample_config/config.json", streamDataVector) < 0) {
-        std::cerr << "failed to read sample config file\n";
+    if (streamsJsonMaker(streamDataVector) < 0) {
+        std::cerr << "failed to read sample streams file\n";
         return -1;
     }
 
@@ -44,12 +44,12 @@ void filePutContents(const std::string &filename, const std::string &content, co
     outfile << content;
 }
 
-int openVideoStream(cv::VideoCapture &cap, Config &config) {
-    if (!cap.open(config.url, config.api_backend, {
+int openVideoStream(cv::VideoCapture &cap, Config &config, const std::string &url) {
+    if (!cap.open(url, config.api_backend, {
                       cv::CAP_PROP_HW_ACCELERATION, config.hardware_acceleration, cv::CAP_PROP_OPEN_TIMEOUT_MSEC, 30000
                   })) {
         std::cerr << "failed to open video stream\n";
-        filePutContents("../failed_streams/failed_streams.txt", config.url + "\n", true);
+        filePutContents("../failed_streams/failed_streams.txt", url + "\n", true);
         cap.release();
         return -1;
     }
@@ -71,14 +71,14 @@ void saveAndReset(const std::string &filename, Metrics &metrics, int &frameCount
     start = std::chrono::high_resolution_clock::now();
 }
 
-void reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &cap, Config &config) {
+void reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &cap, Config &config, const std::string &url) {
     metrics.no_input_stream = true;
-    std::cerr << "connection lost. attempting to reconnect to: " << config.url << std::endl;
+    std::cerr << "connection lost. attempting to reconnect to: " <<  url << std::endl;
     cap.release();
     writeResultsToJson(filename, metrics);
 
     while (true) {
-        if (openVideoStream(cap, config) >= 0) {
+        if (openVideoStream(cap, config, url) >= 0) {
             std::cout << "reconnected\n";
             metrics = Metrics{};
             break;

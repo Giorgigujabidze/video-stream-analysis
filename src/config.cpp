@@ -71,13 +71,9 @@ void readDataFromFile(const std::string &filename, std::vector<StreamData> &stre
     }
 }
 
-int configMaker(const std::string &filename, const std::vector<StreamData> &streamDataVector) {
-    Config config = {};
-    Configs configs = {};
-
-    if (loadConfigFromJson(filename, config) < 0) {
-        return -1;
-    }
+int streamsJsonMaker(const std::vector<StreamData> &streamDataVector) {
+    Stream stream = {};
+    Streams streams = {};
 
     std::string prevLid;
     std::set<std::string> multicastSet;
@@ -91,30 +87,30 @@ int configMaker(const std::string &filename, const std::vector<StreamData> &stre
         const std::string urlOut = "udp://" + data.out_multicast;
 
         if (!multicastSet.contains(urlIn)) {
-            config.name = "_in_" + data.id;
-            config.url = urlIn;
-            configs.configs.push_back(config);
+            stream.name = "_in_" + data.id;
+            stream.url = urlIn;
+            streams.streams.push_back(stream);
         }
 
         multicastSet.insert(urlIn);
 
-        config.name = "_out_" + data.id;
-        config.url = urlOut;
-        configs.configs.push_back(config);
+        stream.name = "_out_" + data.id;
+        stream.url = urlOut;
+        streams.streams.push_back(stream);
     }
-    writeConfigToJson("../config/configs.json", configs);
+    writeStreamsToJson("../streams/streams.json", streams);
     return 0;
 }
 
 
-void writeConfigToJson(const std::string &filename, const Configs &configs) {
+void writeStreamsToJson(const std::string &filename, const Streams &streams) {
     std::ofstream file(filename);
     nlohmann::json j;
-    j = configs;
+    j = streams;
     file << j.dump(4);
 }
 
-int readConfigsFromJson(const std::string &filename, Configs &configs) {
+int readStreamsFromJson(const std::string &filename, Streams &streams) {
     std::ifstream file(filename);
     nlohmann::json j;
     try {
@@ -123,6 +119,6 @@ int readConfigsFromJson(const std::string &filename, Configs &configs) {
         std::cout << e.what() << '\n';
         return -1;
     }
-    configs = j;
+    streams = j;
     return 0;
 }

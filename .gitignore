@@ -1,6 +1,5 @@
 test_samples
 /sample_config/config.json
-/config/config_local2.json
 /cmake-build-debug
 /build
 data.csv

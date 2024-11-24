@@ -10,11 +10,11 @@ void *analyzeVideoStream(void *threadArgs) {
     const auto args = static_cast<ThreadArguments *>(threadArgs);
     cv::VideoCapture cap;
 
-    if (openVideoStream(cap, args->config) < 0) {
+    if (openVideoStream(cap, args->config, args->stream.url) < 0) {
         return nullptr;
     }
 
-    std::string filename = "../results/results" + args->config.name + ".json";
+    std::string filename = "../results/results" + args->stream.name + ".json";
     cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     auto start = std::chrono::high_resolution_clock::now();
     int frameCount = 0;
@@ -23,7 +23,7 @@ void *analyzeVideoStream(void *threadArgs) {
 
     while (true) {
         if (metrics.blank_frame_count > 10) {
-            reconnect(filename, metrics, cap, args->config);
+            reconnect(filename, metrics, cap, args->config, args->stream.url);
             continue;
         }
 
@@ -51,10 +51,11 @@ void *analyzeVideoStream(void *threadArgs) {
             analyzeFrames(grayFrame, prevGrayFrame, downscaledFrame, meanBuffer, metrics, args);
             prevGrayFrame = grayFrame.clone();
         }
+        cv::imshow("win" + args->stream.name, downscaledFrame);
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
 
-        if (duration.count() >= args->config.interval) {
+        if ( cv::waitKey(1) >  1 ||duration.count() >= args->config.interval) {
             saveAndReset(filename, metrics, frameCount, meanBuffer, start);
         }
 

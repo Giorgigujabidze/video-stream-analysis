@@ -10,6 +10,7 @@
 
 struct ThreadArguments {
     Config config;
+    Stream stream;
     std::vector<ColorRange> colorRanges;
 };
 

@@ -17,7 +17,7 @@ int main(const int argc, char **argv) {
     }
 
     if (argc == 3 && std::string_view(argv[1]) == "-c") {
-        if (startConfigMaker(argv[2]) < 0) {
+        if (startStreamsFileMaker(argv[2]) < 0) {
             return -1;
         }
         return 0;
@@ -27,8 +27,13 @@ int main(const int argc, char **argv) {
         n = atoi(argv[2]);
     }
 
-    auto configs = Configs{};
-    if (readConfigsFromJson("../config/configs.json", configs) < 0) {
+    const auto config = new Config{};
+    if (loadConfigFromJson("../program_config/program_config.json", *config) < 0) {
+        return -1;
+    }
+
+    auto streams = Streams{};
+    if (readStreamsFromJson("../streams/streams.json", streams) < 0) {
         return -1;
     }
 
@@ -38,18 +43,20 @@ int main(const int argc, char **argv) {
         return -1;
     }
 
-    std::vector threads(configs.configs.size(), pthread_t{});
+    std::vector threads(streams.streams.size(), pthread_t{});
 
     if (n == 0) {
-        n = configs.configs.size();
+        n = streams.streams.size();
     }
 
+
     for (int i = 0; i < n; i++) {
-        auto threadArgs = new ThreadArguments{
-            .config = configs.configs[i], .colorRanges = colorRanges
+        const auto threadArgs = new ThreadArguments{
+            .config = *config, .stream = streams.streams[i],
+            .colorRanges = colorRanges
         };
         if (pthread_create(&threads[i], nullptr, analyzeVideoStream, threadArgs) != 0) {
-            std::cerr << "failed to create thread for config: " << configs.configs[i].name << std::endl;
+            std::cerr << "failed to create thread for streams: " << streams.streams[i].name << std::endl;
             delete threadArgs;
         }
     }

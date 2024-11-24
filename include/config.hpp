@@ -25,8 +25,6 @@ struct SizeParameters {
 };
 
 struct Config {
-    std::string name;
-    std::string url;
     int api_backend;
     int hardware_acceleration;
     int process_every_nth_frame;
@@ -34,14 +32,21 @@ struct Config {
     SizeParameters size_parameters;
     time_t interval;
     bool output_to_console;
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Config, name, url, api_backend,
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Config, api_backend,
                                    hardware_acceleration, process_every_nth_frame, thresholds,
                                    size_parameters, interval, output_to_console);
 };
 
-struct Configs {
-    std::vector<Config> configs;
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Configs, configs);
+struct Stream {
+    std::string name;
+    std::string url;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Stream, name, url);
+};
+
+
+struct Streams {
+    std::vector<Stream> streams;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Streams, streams);
 };
 
 struct ColorRange {
@@ -66,11 +71,11 @@ std::vector<ColorRange> loadColorRangesFromJson(const std::string &filename);
 
 void readDataFromFile(const std::string &filename, std::vector<StreamData> &streamDataVector);
 
-int configMaker(const std::string &filename, const std::vector<StreamData> &);
+int streamsJsonMaker(const std::vector<StreamData> &streamDataVector);
 
-void writeConfigToJson(const std::string &filename, const Configs &configs);
+void writeStreamsToJson(const std::string &filename, const Streams &streams);
 
-int readConfigsFromJson(const std::string &filename, Configs &configs);
+int readStreamsFromJson(const std::string &filename, Streams &streams);
 
 
 #endif //STREAM_ANALYSIS_CONFIG_HPP

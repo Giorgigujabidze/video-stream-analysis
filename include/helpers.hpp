@@ -15,15 +15,15 @@ void programSetup();
 
 void getHelp(const std::string &name);
 
-int startConfigMaker(const std::string &filename);
+int startStreamsFileMaker(const std::string &filename);
 
 void filePutContents(const std::string &filename, const std::string &content, bool append);
 
-int openVideoStream(cv::VideoCapture &cap, Config &config);
+int openVideoStream(cv::VideoCapture &cap, Config &config, const std::string &url);
 
 void preprocessFrame(cv::Mat &frame, cv::Mat &downscaledFrame, cv::Mat &grayFrame);
 
-void reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &cap, Config &config);
+void reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &cap, Config &config, const std::string &url);
 
 void saveAndReset(const std::string &filename, Metrics &metrics, int &frameCount, std::vector<double> &meanBuffer,
                   std::chrono::time_point<std::chrono::system_clock> &start);

@@ -6,7 +6,6 @@
 #include "metrics.hpp"
 #include "threading.hpp"
 
-int openVideoStream(cv::VideoCapture &cap, Config &config);
 
 void *analyzeVideoStream(void *threadArgs);
 

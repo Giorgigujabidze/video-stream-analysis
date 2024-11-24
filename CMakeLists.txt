@@ -19,7 +19,6 @@ set(SOURCE_FILES
         src/helpers.cpp
 )
 
-# Header files
 set(HEADER_FILES
         include/stream_analyzer.hpp
         include/config.hpp

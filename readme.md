@@ -130,7 +130,7 @@ cd ..
 Download and build OpenCV with contrib modules:
 
 ```bash
-# Set PKG config path
+# Set PKG streams path
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
 
 # Download OpenCV and contrib modules
@@ -194,7 +194,7 @@ Run the stream analysis tool in config generation mode:
 Run the stream analysis tool:
 
 ```bash
-./stream_analysis config.json results.csv
+./stream_analysis streams.json results.csv
 ```
 to run program on batch of files use script provided in release, or
 in source code
