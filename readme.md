@@ -113,7 +113,8 @@ cd ffmpeg
     --enable-shared \
     --enable-pic \
     --enable-libopus \
-    --enable-vaapi
+    --enable-vaapi \
+    --enable-pthreads
 
 make -j$(nproc)
 sudo make install
@@ -182,9 +183,6 @@ make
 
 ## Usage
 
-Before running the tool, check that settings are correct in config.json
-such as color_ranges_path and hardware_acceleration settings.
-
 Run the stream analysis tool in config generation mode:
 
 ```bash
@@ -194,45 +192,38 @@ Run the stream analysis tool in config generation mode:
 Run the stream analysis tool:
 
 ```bash
-./stream_analysis streams.json results.csv
+./stream_analysis
 ```
-to run program on batch of files use script provided in release, or
-in source code
+
+Run the stream analysis too on n files
+
+```bash
+./stream_nalaysis -n <count>
+```
 
 ### Understanding Results
 
-The tool outputs its analysis results to a CSV file (results.csv). Each line in the output file represents a
-single analysis period with the following format:
+The tool outputs its analysis results to a Json file.
 
+```json
+{
+  "black_frame_count": 0,
+  "blank_frame_count": 0,
+  "coloured_stripes_detected": false,
+  "no_input_stream": false,
+  "static_frame_count": 0
+}
 ```
-timestamp, blank_frame_count, static_frame_count, black_frame_count, coloured_stripes_detected
-```
 
-#### Column Descriptions
+#### Json Description
 
-| Column                    | Type            | Description                                               |
+| Name                      | Type            | Description                                               |
 |---------------------------|-----------------|-----------------------------------------------------------|
-| timestamp                 | string          | ISO formatted timestamp of the analysis period            |
 | no_input_stream           | boolean   (0/1) | Whether no input stream is detected  (1 = yes, 0  = no  ) |
 | blank_frame_count         | integer         | Number of blank frames detected in this period            |
 | static_frame_count        | integer         | Number of static (frozen) frames detected                 |
 | black_frame_count         | integer         | Number of black frames detected                           |
 | coloured_stripes_detected | boolean (0/1)   | Whether colored stripes were detected (1 = yes, 0 = no)   |
-
-#### Example Output
-
-```csv
-2024-03-15T14:30:00,  1, 0,  11,  0,  0
-2024-03-15T14:30:30,  0, 5,  0,  2,  1
-```
-
-In this example:
-
-- First row: At 14:30:00,stream has no input and is odd, there were no blank frames, 11 static frames, no black frames,
-  and no colored stripes
-- Second row: At 14:30:30, stream has input and functions normally, there were 5 blank frames, no static frames, 2 black
-  frames, and colored stripes were
-  detected
 
 ## Configuration Options
 
@@ -241,13 +232,12 @@ options:
 
 ### Basic Settings
 
-| Parameter         | Description                               | Type    |
-|-------------------|-------------------------------------------|---------|
-| url               | Input stream URL (e.g., UDP endpoint)     | string  |
-| color_ranges_path | Path to the color ranges definition file  | string  |
-| max_log_number    | Maximum number of log entries to maintain | integer |
-| interval          | Analysis interval in seconds              | integer |
-| output_to_console | option to log results to console          | boolean |
+| Parameter         | Description                                      | Type    |
+|-------------------|--------------------------------------------------|---------|
+| url               | Input stream URL (e.g., UDP endpoint)            | string  |
+| interval          | Analysis interval in seconds                     | integer |
+| output_to_console | option to log results to console                 | boolean |
+| save_last_frame   | option to save last frame of processing interval | boolean |
 
 ### Api Backend Settings
 
@@ -299,22 +289,20 @@ The `size_parameters` object contains buffer size configurations:
 
 ```json
 {
-  "url": "rtp://@233.3.4.98:4098",
-  "color_ranges_path": "/home/gio/CLionProjects/untitled8/color_ranges/color_ranges.json",
   "api_backend": 1900,
   "hardware_acceleration": 0,
-  "process_every_nth_frame": 1,
-  "max_log_number": 1000,
   "interval": 30,
-  "output_to_console": true,
-  "thresholds": {
-    "static_frame_threshold": 0.05,
-    "coloured_stripes_threshold": 85,
-    "coloured_stripes_max_deviation": 10,
-    "black_frame_threshold": 15
-  },
+  "output_to_console": false,
+  "save_last_frame": true,
+  "process_every_nth_frame": 4,
   "size_parameters": {
     "max_mean_buffer_size": 15
+  },
+  "thresholds": {
+    "black_frame_threshold": 15.0,
+    "coloured_stripes_max_deviation": 10.0,
+    "coloured_stripes_threshold": 85.0,
+    "static_frame_threshold": 0.05
   }
 }
 
