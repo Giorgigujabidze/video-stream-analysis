@@ -51,11 +51,10 @@ void *analyzeVideoStream(void *threadArgs) {
             analyzeFrames(grayFrame, prevGrayFrame, downscaledFrame, meanBuffer, metrics, args);
             prevGrayFrame = grayFrame.clone();
         }
-        cv::imshow("win" + args->stream.name, downscaledFrame);
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
 
-        if ( cv::waitKey(1) >  1 ||duration.count() >= args->config.interval) {
+        if ( duration.count() >= args->config.interval) {
             saveAndReset(filename, metrics, frameCount, meanBuffer, start);
         }
 
