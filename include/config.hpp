@@ -32,9 +32,10 @@ struct Config {
     SizeParameters size_parameters;
     time_t interval;
     bool output_to_console;
+    bool save_last_frame;
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Config, api_backend,
                                    hardware_acceleration, process_every_nth_frame, thresholds,
-                                   size_parameters, interval, output_to_console);
+                                   size_parameters, interval, output_to_console, save_last_frame);
 };
 
 struct Stream {

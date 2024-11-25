@@ -56,10 +56,9 @@ int openVideoStream(cv::VideoCapture &cap, Config &config, const std::string &ur
     return 0;
 }
 
-void preprocessFrame(cv::Mat &frame, cv::Mat &downscaledFrame, cv::Mat &grayFrame) {
+void preprocessFrame(const cv::Mat &frame, cv::Mat &downscaledFrame, cv::Mat &grayFrame) {
     resize(frame, downscaledFrame, cv::Size(600, 400), 0, 0, cv::INTER_LINEAR);
     cvtColor(downscaledFrame, grayFrame, cv::COLOR_BGR2GRAY);
-    cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
 }
 
 void saveAndReset(const std::string &filename, Metrics &metrics, int &frameCount, std::vector<double> &meanBuffer,

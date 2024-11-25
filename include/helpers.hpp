@@ -21,7 +21,7 @@ void filePutContents(const std::string &filename, const std::string &content, bo
 
 int openVideoStream(cv::VideoCapture &cap, Config &config, const std::string &url);
 
-void preprocessFrame(cv::Mat &frame, cv::Mat &downscaledFrame, cv::Mat &grayFrame);
+void preprocessFrame(const cv::Mat &frame, cv::Mat &downscaledFrame, cv::Mat &grayFrame);
 
 void reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &cap, Config &config, const std::string &url);
 

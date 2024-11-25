@@ -14,7 +14,9 @@ void *analyzeVideoStream(void *threadArgs) {
         return nullptr;
     }
 
+    std::string imgName = "../images/img" + args->stream.name + ".png";
     std::string filename = "../results/results" + args->stream.name + ".json";
+
     cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
     auto start = std::chrono::high_resolution_clock::now();
     int frameCount = 0;
@@ -56,6 +58,9 @@ void *analyzeVideoStream(void *threadArgs) {
 
         if ( duration.count() >= args->config.interval) {
             saveAndReset(filename, metrics, frameCount, meanBuffer, start);
+            if (args->config.save_last_frame) {
+                imwrite(imgName, downscaledFrame);
+            }
         }
 
         frameCount++;
