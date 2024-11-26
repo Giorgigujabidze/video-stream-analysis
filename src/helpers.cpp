@@ -18,12 +18,16 @@ void programSetup() {
 void getHelp(const std::string &name) {
     std::cout << "usages: " << std::endl
             << name << std::endl
+            << name << "<-n> <count>" << std::endl
             << name << " <-c> <data_file>" << std::endl;
 }
 
 int startStreamsFileMaker(const std::string &filename) {
     std::vector<StreamData> streamDataVector;
-    readDataFromFile(filename, streamDataVector);
+
+    if (readDataFromFile(filename, streamDataVector) < 0) {
+        return -1;
+    }
 
     if (streamsJsonMaker(streamDataVector) < 0) {
         std::cerr << "failed to read sample streams file\n";
@@ -61,20 +65,27 @@ void preprocessFrame(const cv::Mat &frame, cv::Mat &downscaledFrame, cv::Mat &gr
     cvtColor(downscaledFrame, grayFrame, cv::COLOR_BGR2GRAY);
 }
 
-void saveAndReset(const std::string &filename, Metrics &metrics, int &frameCount, std::vector<double> &meanBuffer,
-                  std::chrono::time_point<std::chrono::system_clock> &start) {
-    writeResultsToJson(filename, metrics);
+int saveAndReset(const std::string &filename, Metrics &metrics, int &frameCount, std::vector<double> &meanBuffer,
+                 std::chrono::time_point<std::chrono::system_clock> &start) {
+    if (writeResultsToJson(filename, metrics) < 0) {
+        return -1;
+    }
     frameCount = 0;
     meanBuffer.erase(meanBuffer.begin(), meanBuffer.end());
     metrics = Metrics{};
     start = std::chrono::high_resolution_clock::now();
+    return 0;
 }
 
-void reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &cap, Config &config, const std::string &url) {
+int reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &cap, Config &config,
+              const std::string &url) {
     metrics.no_input_stream = true;
-    std::cerr << "connection lost. attempting to reconnect to: " <<  url << std::endl;
+    std::cerr << "connection lost. attempting to reconnect to: " << url << std::endl;
     cap.release();
-    writeResultsToJson(filename, metrics);
+    if (writeResultsToJson(filename, metrics) < 0) {
+        std::cerr << "failed to reconnect to " << url << std::endl;
+        return -1;
+    }
 
     while (true) {
         if (openVideoStream(cap, config, url) >= 0) {
@@ -86,4 +97,5 @@ void reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &
         std::cerr << "failed to reconnect\n";
         sleep(5);
     }
+    return 0;
 }

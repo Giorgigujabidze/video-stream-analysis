@@ -20,7 +20,7 @@ struct Metrics {
 };
 
 
-void writeResultsToJson(const std::string &filename, const Metrics &metrics);
+int writeResultsToJson(const std::string &filename, const Metrics &metrics);
 
 void printMetrics(const Metrics &metrics);
 

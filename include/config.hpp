@@ -70,7 +70,7 @@ int loadConfigFromJson(const std::string &filename, Config &config);
 
 std::vector<ColorRange> loadColorRangesFromJson(const std::string &filename);
 
-void readDataFromFile(const std::string &filename, std::vector<StreamData> &streamDataVector);
+int readDataFromFile(const std::string &filename, std::vector<StreamData> &streamDataVector);
 
 int streamsJsonMaker(const std::vector<StreamData> &streamDataVector);
 

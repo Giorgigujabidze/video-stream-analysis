@@ -23,10 +23,11 @@ int openVideoStream(cv::VideoCapture &cap, Config &config, const std::string &ur
 
 void preprocessFrame(const cv::Mat &frame, cv::Mat &downscaledFrame, cv::Mat &grayFrame);
 
-void reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &cap, Config &config, const std::string &url);
+int reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &cap, Config &config,
+              const std::string &url);
 
-void saveAndReset(const std::string &filename, Metrics &metrics, int &frameCount, std::vector<double> &meanBuffer,
-                  std::chrono::time_point<std::chrono::system_clock> &start);
+int saveAndReset(const std::string &filename, Metrics &metrics, int &frameCount, std::vector<double> &meanBuffer,
+                 std::chrono::time_point<std::chrono::system_clock> &start);
 
 
 #endif //HELPERS_HPP

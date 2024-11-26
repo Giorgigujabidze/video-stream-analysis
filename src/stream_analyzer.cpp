@@ -25,7 +25,9 @@ void *analyzeVideoStream(void *threadArgs) {
 
     while (true) {
         if (metrics.blank_frame_count > 10) {
-            reconnect(filename, metrics, cap, args->config, args->stream.url);
+            if (reconnect(filename, metrics, cap, args->config, args->stream.url) < 0) {
+                return nullptr;
+            }
             continue;
         }
 
@@ -57,9 +59,14 @@ void *analyzeVideoStream(void *threadArgs) {
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
 
         if ( duration.count() >= args->config.interval) {
-            saveAndReset(filename, metrics, frameCount, meanBuffer, start);
+            if (saveAndReset(filename, metrics, frameCount, meanBuffer, start) < 0) {
+                return nullptr;
+            }
             if (args->config.save_last_frame) {
-                imwrite(imgName, downscaledFrame);
+                if (!imwrite(imgName, downscaledFrame)) {
+                    std::cout << imgName << " save failed\n";
+                    return nullptr;
+                }
             }
         }
 

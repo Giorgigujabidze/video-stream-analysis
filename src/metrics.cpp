@@ -12,13 +12,19 @@ void printMetrics(const Metrics &metrics) {
             << "Blank Frames: " << metrics.blank_frame_count << std::endl;
 }
 
-void writeResultsToJson(const std::string &filename, const Metrics &metrics) {
+int writeResultsToJson(const std::string &filename, const Metrics &metrics) {
     nlohmann::json j;
     std::ofstream outfile(filename);
+
+    if (outfile.fail()) {
+        std::cerr << "error opening output file " << filename << std::endl;
+        return -1;
+    }
 
     j = metrics;
 
     outfile << j.dump(4);
+    return 0;
 }
 
 std::string getTimeString() {

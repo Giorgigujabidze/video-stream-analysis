@@ -44,9 +44,15 @@ std::vector<ColorRange> loadColorRangesFromJson(const std::string &filename) {
     return colorRanges;
 }
 
-void readDataFromFile(const std::string &filename, std::vector<StreamData> &streamDataVector
+int readDataFromFile(const std::string &filename, std::vector<StreamData> &streamDataVector
 ) {
     std::ifstream file(filename);
+
+    if (!file.is_open()) {
+        std::cerr << "file " << filename << " does not exist." << std::endl;
+        return -1;
+    }
+
     std::string line, token;
     StreamData streamData;
     std::vector<std::string> tokenVector;
@@ -69,6 +75,7 @@ void readDataFromFile(const std::string &filename, std::vector<StreamData> &stre
         tokenVector.clear();
         streamDataVector.push_back(streamData);
     }
+    return 0;
 }
 
 int streamsJsonMaker(const std::vector<StreamData> &streamDataVector) {

@@ -7,6 +7,11 @@
 #include "helpers.hpp"
 
 int main(const int argc, char **argv) {
+    if (argc > 3) {
+        getHelp(argv[0]);
+        return -1;
+    }
+
     programSetup();
 
     int n = 0;
@@ -45,10 +50,9 @@ int main(const int argc, char **argv) {
 
     std::vector threads(streams.streams.size(), pthread_t{});
 
-    if (n == 0) {
+    if (n == 0 || n > streams.streams.size()) {
         n = streams.streams.size();
     }
-
 
     for (int i = 0; i < n; i++) {
         const auto threadArgs = new ThreadArguments{
