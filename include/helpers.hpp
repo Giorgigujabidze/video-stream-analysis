@@ -9,6 +9,7 @@
 #include <opencv2/videoio.hpp>
 
 #include "config.hpp"
+#include "frame.hpp"
 #include "metrics.hpp"
 
 void programSetup();
@@ -19,11 +20,12 @@ int startStreamsFileMaker(const std::string &filename);
 
 void filePutContents(const std::string &filename, const std::string &content, bool append);
 
-int openVideoStream(cv::VideoCapture &cap, Config &config, const std::string &url);
+int openVideoStream(Capture &cap, const std::string &url);
+
 
 void preprocessFrame(const cv::Mat &frame, cv::Mat &downscaledFrame, cv::Mat &grayFrame);
 
-int reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &cap, Config &config,
+int reconnect(const std::string &filename, Metrics &metrics, Capture &cap, Config &config,
               const std::string &url);
 
 int saveAndReset(const std::string &filename, Metrics &metrics, int &frameCount, std::vector<double> &meanBuffer,

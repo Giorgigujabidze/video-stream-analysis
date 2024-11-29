@@ -5,6 +5,7 @@
 #include <opencv2/core/utils/logger.hpp>
 
 #include "config.hpp"
+#include "frame.hpp"
 #include "metrics.hpp"
 #include "stream_analyzer.hpp"
 
@@ -48,10 +49,8 @@ void filePutContents(const std::string &filename, const std::string &content, co
     outfile << content;
 }
 
-int openVideoStream(cv::VideoCapture &cap, Config &config, const std::string &url) {
-    if (!cap.open(url, config.api_backend, {
-                      cv::CAP_PROP_HW_ACCELERATION, config.hardware_acceleration, cv::CAP_PROP_OPEN_TIMEOUT_MSEC, 30000
-                  })) {
+int openVideoStream(Capture &cap, const std::string &url) {
+    if (cap.openStream(url) < 0) {
         std::cerr << "failed to open video stream\n";
         filePutContents("../failed_streams/failed_streams.txt", url + "\n", true);
         cap.release();
@@ -77,7 +76,7 @@ int saveAndReset(const std::string &filename, Metrics &metrics, int &frameCount,
     return 0;
 }
 
-int reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &cap, Config &config,
+int reconnect(const std::string &filename, Metrics &metrics, Capture &cap, Config &config,
               const std::string &url) {
     metrics.no_input_stream = true;
     std::cerr << "connection lost. attempting to reconnect to: " << url << std::endl;
@@ -88,7 +87,7 @@ int reconnect(const std::string &filename, Metrics &metrics, cv::VideoCapture &c
     }
 
     while (true) {
-        if (openVideoStream(cap, config, url) >= 0) {
+        if (openVideoStream(cap, url) >= 0) {
             std::cout << "reconnected\n";
             metrics = Metrics{};
             break;

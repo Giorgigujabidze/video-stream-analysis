@@ -1,5 +1,7 @@
 #include "stream_analyzer.hpp"
 #include <fstream>
+
+#include "frame.hpp"
 #include "frame_analysis.hpp"
 #include "metrics.hpp"
 #include "threading.hpp"
@@ -8,16 +10,16 @@
 
 void *analyzeVideoStream(void *threadArgs) {
     const auto args = static_cast<ThreadArguments *>(threadArgs);
-    cv::VideoCapture cap;
+    Capture cap;
 
-    if (openVideoStream(cap, args->config, args->stream.url) < 0) {
+    if (openVideoStream(cap, args->stream.url) < 0) {
         return nullptr;
     }
 
     std::string imgName = "../images/img" + args->stream.name + ".png";
     std::string filename = "../results/results" + args->stream.name + ".json";
 
-    cv::Mat frame, downscaledFrame, prevGrayFrame, grayFrame;
+    cv::Mat downscaledFrame, prevGrayFrame, grayFrame;
     auto start = std::chrono::high_resolution_clock::now();
     int frameCount = 0;
     std::vector<double> meanBuffer;
@@ -31,14 +33,19 @@ void *analyzeVideoStream(void *threadArgs) {
             continue;
         }
 
-        if (!cap.grab()) {
+        if (cap.grabFrame() < 0) {
             std::cerr << "blank frame grabbed\n";
             metrics.blank_frame_count++;
             continue;
         }
 
         if (frameCount % args->config.process_every_nth_frame == 0) {
-            cap.retrieve(frame);
+            cv::Mat frame;
+            if (cap.retrieveFrame() != DECODE_OK) {
+                continue;
+            }
+
+            cap.getCVFrame(frame);
 
             if (frame.empty()) {
                 std::cerr << "empty frame\n";
@@ -55,10 +62,14 @@ void *analyzeVideoStream(void *threadArgs) {
             analyzeFrames(grayFrame, prevGrayFrame, downscaledFrame, meanBuffer, metrics, args);
             prevGrayFrame = grayFrame.clone();
         }
+
+        cv::imshow("window" + args->stream.name, downscaledFrame);
+
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
 
-        if ( duration.count() >= args->config.interval) {
+
+        if (cv::waitKey(1) >= 0 || duration.count() >= args->config.interval) {
             if (saveAndReset(filename, metrics, frameCount, meanBuffer, start) < 0) {
                 return nullptr;
             }
