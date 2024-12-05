@@ -1,7 +1,8 @@
 {
     "black_frame_count": 0,
-    "blank_frame_count": 0,
+    "blank_frame_count": 11,
     "coloured_stripes_detected": false,
-    "no_input_stream": false,
-    "static_frame_count": 3
+    "corrupt_frame_count": 0,
+    "no_input_stream": true,
+    "static_frame_count": 0
 }

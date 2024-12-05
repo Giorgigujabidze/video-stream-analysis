@@ -1,7 +1,8 @@
 #include "stream_analyzer.hpp"
 #include <fstream>
 
-#include "frame.hpp"
+#include "capture.hpp"
+#include "ffmpeg_capture.hpp"
 #include "frame_analysis.hpp"
 #include "metrics.hpp"
 #include "threading.hpp"
@@ -41,11 +42,18 @@ void *analyzeVideoStream(void *threadArgs) {
 
         if (frameCount % args->config.process_every_nth_frame == 0) {
             cv::Mat frame;
-            if (cap.retrieveFrame() != DECODE_OK) {
+            if (const int resp = cap.retrieveFrame(args->config.key_frames_only); resp != DECODE_OK) {
+                if (resp == DECODE_ERROR) {
+                    metrics.corrupt_frame_count++;
+                    std::cerr << "retrieveFrame() failed\n";
+                }
                 continue;
             }
 
-            cap.getCVFrame(frame);
+            if (cap.getCVFrame(frame) < 0) {
+                std::cerr << "cap.getCVFrame() failed\n";
+                continue;
+            }
 
             if (frame.empty()) {
                 std::cerr << "empty frame\n";
@@ -63,13 +71,12 @@ void *analyzeVideoStream(void *threadArgs) {
             prevGrayFrame = grayFrame.clone();
         }
 
-        cv::imshow("window" + args->stream.name, downscaledFrame);
 
         auto now = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
 
 
-        if (cv::waitKey(1) >= 0 || duration.count() >= args->config.interval) {
+        if (duration.count() >= args->config.interval) {
             if (saveAndReset(filename, metrics, frameCount, meanBuffer, start) < 0) {
                 return nullptr;
             }

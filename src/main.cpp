@@ -4,7 +4,7 @@
 #include <iostream>
 #include <pthread.h>
 
-#include "frame.hpp"
+#include "ffmpeg_capture.hpp"
 #include "threading.hpp"
 #include "helpers.hpp"
 
@@ -18,47 +18,6 @@ int main(const int argc, char **argv) {
     programSetup();
 
     int n = 0;
-
- /*
-    Capture cap;
-    if (cap.openStream("https://edge01.tbs.nucast.tv/gpb-2tv/tracks-v1a1/mono.m3u8") < 0) {
-        std::cerr << "Failed to open stream" << std::endl;
-        return -1;
-    }
-    cv::Mat frame, downscaledFrame, grayFrame, prevGrayFrame;
-    std::vector<double> meanBuffer;
-
-    while (true) {
-        if (cap.grabFrame() < 0) {
-            continue;
-        }
-
-        if (cap.retrieveFrame() != DECODE_OK) {
-            continue;
-        }
-
-
-        if (frame.empty()) {
-            std::cerr << "Empty frame" << std::endl;
-            continue;
-        }
-
-        preprocessFrame(frame, downscaledFrame, grayFrame);
-
-        if (prevGrayFrame.empty()) {
-            prevGrayFrame = grayFrame.clone();
-            continue;;
-        }
-        detectStaticFrame(grayFrame, prevGrayFrame, 0.03, meanBuffer, 15);
-        detectBlackFrame(grayFrame, 15);
-
-        prevGrayFrame = grayFrame.clone();
-
-        cv::imshow("frame", downscaledFrame);
-        cv::waitKey(15);
-        frame.release();
-    }
-*/
 
 
     if (argc == 2 && std::string_view(argv[1]) == "--help") {
@@ -81,6 +40,7 @@ int main(const int argc, char **argv) {
     if (loadConfigFromJson("../program_config/program_config.json", *config) < 0) {
         return -1;
     }
+    validateProgramConfig(*config);
 
     auto streams = Streams{};
     if (readStreamsFromJson("../streams/streams.json", streams) < 0) {

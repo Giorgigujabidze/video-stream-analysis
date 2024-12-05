@@ -13,9 +13,11 @@ struct Metrics {
     int black_frame_count;
     int static_frame_count;
     int blank_frame_count;
+    int corrupt_frame_count;
     bool coloured_stripes_detected;
     bool no_input_stream;
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Metrics, black_frame_count, static_frame_count, blank_frame_count,
+                                   corrupt_frame_count,
                                    coloured_stripes_detected, no_input_stream)
 };
 

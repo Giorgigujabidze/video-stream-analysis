@@ -27,6 +27,7 @@ struct SizeParameters {
 struct Config {
     int api_backend;
     int hardware_acceleration;
+    bool key_frames_only;
     int process_every_nth_frame;
     Thresholds thresholds;
     SizeParameters size_parameters;
@@ -34,7 +35,7 @@ struct Config {
     bool output_to_console;
     bool save_last_frame;
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Config, api_backend,
-                                   hardware_acceleration, process_every_nth_frame, thresholds,
+                                   hardware_acceleration, key_frames_only,process_every_nth_frame, thresholds,
                                    size_parameters, interval, output_to_console, save_last_frame);
 };
 

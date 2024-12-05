@@ -46,10 +46,7 @@ bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame, const dou
         return false;
     }
     bufferAverage = cv::mean(buffer)[0];
-    std::cout << "buffer average: " << bufferAverage << std::endl;
 
     buffer.clear();
     return bufferAverage < threshold;
 }
-
-

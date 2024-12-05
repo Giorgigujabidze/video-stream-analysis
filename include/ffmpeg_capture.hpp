@@ -7,6 +7,8 @@
 #include <queue>
 #include <string>
 
+#include "icapture.hpp"
+
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
@@ -20,7 +22,7 @@ enum RETRIEVE_FLAGS {
     NON_VIDEO_PACKET = 100
 };
 
-class Capture {
+class FFMpegCapture final : public ICapture {
     AVFormatContext *pContext = nullptr;
     AVDictionary *options = nullptr;
     const AVCodec *pCodec = nullptr;
@@ -35,21 +37,21 @@ class Capture {
     static int decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame);
 
 public:
-    Capture() = default;
+    FFMpegCapture() = default;
 
-    explicit Capture(const std::string &url);
+    explicit FFMpegCapture(const std::string &url);
 
-    ~Capture();
+    ~FFMpegCapture() override;
 
-    int grabFrame() const;
+    int openStream(const std::string &url, const std::string &timeout) override;
 
-    int retrieveFrame();
+    [[nodiscard]] int grabFrame()  override;
 
-    int openStream(const std::string &url, const std::string &timeout = "30000000");
+    int retrieveFrame(bool keyframesOnly) override;
 
-    int getCVFrame(cv::Mat &frame) const;
+    int getCVFrame(cv::Mat &frame) const override;
 
-    void release();
+    void release() override;
 };
 
 

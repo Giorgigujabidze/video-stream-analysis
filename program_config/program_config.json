@@ -4,9 +4,10 @@
   "interval": 30,
   "output_to_console": false,
   "save_last_frame": true,
+  "key_frames_only": true,
   "process_every_nth_frame": 1,
   "size_parameters": {
-    "max_mean_buffer_size": 15
+    "max_mean_buffer_size": 1
   },
   "thresholds": {
     "black_frame_threshold": 15.0,

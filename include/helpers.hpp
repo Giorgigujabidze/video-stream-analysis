@@ -8,8 +8,9 @@
 #include <chrono>
 #include <opencv2/videoio.hpp>
 
+#include "capture.hpp"
 #include "config.hpp"
-#include "frame.hpp"
+#include "ffmpeg_capture.hpp"
 #include "metrics.hpp"
 
 void programSetup();
@@ -22,7 +23,6 @@ void filePutContents(const std::string &filename, const std::string &content, bo
 
 int openVideoStream(Capture &cap, const std::string &url);
 
-
 void preprocessFrame(const cv::Mat &frame, cv::Mat &downscaledFrame, cv::Mat &grayFrame);
 
 int reconnect(const std::string &filename, Metrics &metrics, Capture &cap, Config &config,
@@ -31,5 +31,6 @@ int reconnect(const std::string &filename, Metrics &metrics, Capture &cap, Confi
 int saveAndReset(const std::string &filename, Metrics &metrics, int &frameCount, std::vector<double> &meanBuffer,
                  std::chrono::time_point<std::chrono::system_clock> &start);
 
+void validateProgramConfig(Config &config);
 
 #endif //HELPERS_HPP

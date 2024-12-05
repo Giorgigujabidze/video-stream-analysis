@@ -4,15 +4,16 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/core/utils/logger.hpp>
 
+#include "capture.hpp"
 #include "config.hpp"
-#include "frame.hpp"
+#include "ffmpeg_capture.hpp"
 #include "metrics.hpp"
 #include "stream_analyzer.hpp"
 
 void programSetup() {
     setenv("OPENCV_FFMPEG_IS_THREAD_SAFE", "1", 0);
-    setenv("OPENCV_FFMPEG_LOGLEVEL", "-8", 0);
     setLogLevel(cv::utils::logging::LOG_LEVEL_SILENT);
+    av_log_set_level(AV_LOG_QUIET);
     filePutContents("../failed_streams/failed_streams.txt", "", false);
 }
 
@@ -97,4 +98,34 @@ int reconnect(const std::string &filename, Metrics &metrics, Capture &cap, Confi
         sleep(5);
     }
     return 0;
+}
+
+void validateProgramConfig(Config &config) {
+    if (config.api_backend != 1900 /*&& config.api_backend != 1800*/) {
+        config.api_backend = 1900;
+        std::cerr << "invalid api backend defaulting to ffmpeg\n";
+    }
+    if (config.hardware_acceleration > 4) {
+        config.hardware_acceleration = 0;
+        std::cerr << "invalid hardware acceleration value defaulting to no hardware acceleration\n";
+    }
+    if (config.key_frames_only && config.size_parameters.max_mean_buffer_size != 1) {
+        config.size_parameters.max_mean_buffer_size = 1;
+    }
+    if (config.thresholds.black_frame_threshold < 15) {
+        std::cerr << " black frame threshold value might be too low\n";
+    } else if (config.thresholds.black_frame_threshold > 15) {
+        std::cerr << "black frame threshold value too high, defaulting to 15\n";
+        config.thresholds.black_frame_threshold = 15;
+    }
+
+    if (config.thresholds.coloured_stripes_max_deviation > 10) {
+        std::cerr << "deviation threshold value might be too high, defaulting to 10\n";
+        config.thresholds.coloured_stripes_max_deviation = 10;
+    }
+
+    if (config.thresholds.static_frame_threshold < 0.03) {
+        std::cerr <<
+                "threshold values below 0.03 might not work on some transcoders, when no input source handling is set to frozen frame\n";
+    }
 }
