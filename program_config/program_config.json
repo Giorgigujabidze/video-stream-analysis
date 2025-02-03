@@ -13,6 +13,6 @@
     "black_frame_threshold": 15.0,
     "coloured_stripes_max_deviation": 10.0,
     "coloured_stripes_threshold": 85.0,
-    "static_frame_threshold": 0.05
+    "static_frame_threshold": 0.0003
   }
 }

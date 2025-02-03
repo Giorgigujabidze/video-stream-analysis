@@ -1,7 +1,6 @@
 #include <iostream>
 #include <opencv2/highgui.hpp>
-
-
+#include <libavutil/time.h>
 #include <ffmpeg_capture.hpp>
 #include <stream_analyzer.hpp>
 #include "frame_analysis.hpp"
@@ -20,13 +19,33 @@ FFMpegCapture::~FFMpegCapture() {
 
 int FFMpegCapture::openStream(const std::string &url, const std::string &timeout) {
     av_dict_set(&options, "timeout", timeout.c_str(), 0);
+
+    pContext = avformat_alloc_context();
+
+
+    if (!pContext) {
+        std::cout << "failed to allocate AVFormatContext" << std::endl;
+        return -1;
+    }
+
     if (avformat_open_input(&pContext, url.c_str(), nullptr, &options) < 0) {
         std::cerr << "avformat_open_input error" << std::endl;
         return -1;
     }
 
+    setInterruptCallback();
+
+    findStreamInfoStart = std::chrono::steady_clock::now();
+
     if (avformat_find_stream_info(pContext, nullptr) < 0) {
         std::cerr << "avformat_find_stream_info error" << std::endl;
+        return -1;
+    }
+
+    unsetIterruptCallback();
+
+    if (std::chrono::steady_clock::now() - findStreamInfoStart > timeoutDuration) {
+        std::cerr << "stream timeout" << std::endl;
         return -1;
     }
 
@@ -34,9 +53,13 @@ int FFMpegCapture::openStream(const std::string &url, const std::string &timeout
     for (int i = 0; i < pContext->nb_streams; i++) {
         AVCodecParameters *pLocalCodecParameters = nullptr;
         pLocalCodecParameters = pContext->streams[i]->codecpar;
-
         const AVCodec *pLocalCodec = nullptr;
+
+        if (pLocalCodecParameters->codec_type != AVMEDIA_TYPE_VIDEO) {
+            continue;
+        }
         pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
+
         if (pLocalCodec == nullptr) {
             std::cerr << "avcodec_find_decoder error" << std::endl;
             return -1;
@@ -47,8 +70,7 @@ int FFMpegCapture::openStream(const std::string &url, const std::string &timeout
             pCodec = pLocalCodec;
             pCodecParameters = pLocalCodecParameters;
         }
-
-        std::cout << pLocalCodec->name << pLocalCodec->id << pLocalCodecParameters->bit_rate << std::endl;
+        std::cout << pLocalCodec->name << " " << pLocalCodec->id << pLocalCodecParameters->bit_rate << std::endl;
     }
 
     if (videoStreamIndex == -1) {
@@ -112,6 +134,16 @@ int FFMpegCapture::retrieveFrame(const bool keyframesOnly) {
     return NON_VIDEO_PACKET;
 }
 
+
+void FFMpegCapture::setInterruptCallback() {
+    pContext->interrupt_callback.callback = interruptCallback;
+    pContext->interrupt_callback.opaque = this;
+}
+
+void FFMpegCapture::unsetIterruptCallback() const {
+    pContext->interrupt_callback.callback = nullptr;
+    pContext->interrupt_callback.opaque = nullptr;
+}
 
 int FFMpegCapture::decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame) {
     int response = avcodec_send_packet(pCodecContext, pPacket);
@@ -194,6 +226,7 @@ void FFMpegCapture::release() {
     if (options) {
         av_dict_free(&options);
     }
+
     if (pContext) {
         avformat_close_input(&pContext);
     }

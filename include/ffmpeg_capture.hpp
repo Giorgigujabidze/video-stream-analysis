@@ -4,9 +4,10 @@
 
 #ifndef FRAME_HPP
 #define FRAME_HPP
+#include <atomic>
 #include <queue>
 #include <string>
-
+#include <chrono>
 #include "icapture.hpp"
 
 extern "C" {
@@ -34,6 +35,24 @@ class FFMpegCapture final : public ICapture {
     int response = 0;
     std::string url;
 
+    std::chrono::steady_clock::time_point findStreamInfoStart;
+    std::chrono::seconds timeoutDuration = std::chrono::seconds(30);
+
+
+    static int interruptCallback(void *ctx) {
+        const auto *capture = static_cast<FFMpegCapture *>(ctx);
+        const auto now = std::chrono::steady_clock::now();
+        const auto duration = std::chrono::duration_cast<std::chrono::seconds>(
+            now - capture->findStreamInfoStart
+        );
+
+        return duration > capture->timeoutDuration ? 1 : 0;
+    }
+
+    void setInterruptCallback();
+
+    void unsetIterruptCallback() const;
+
     static int decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame);
 
 public:
@@ -45,7 +64,7 @@ public:
 
     int openStream(const std::string &url, const std::string &timeout) override;
 
-    [[nodiscard]] int grabFrame()  override;
+    [[nodiscard]] int grabFrame() override;
 
     int retrieveFrame(bool keyframesOnly) override;
 

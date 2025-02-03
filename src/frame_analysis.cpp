@@ -5,19 +5,19 @@
 bool detectColouredStripes(const cv::Mat &frame, const std::vector<ColorRange> &colorRanges, const double &threshold1,
                            const double &threshold2) {
     cv::Mat hsvFrame;
-    cv::cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
+    cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
     cv::Mat combinedMask = cv::Mat::zeros(frame.size(), CV_8U);
     std::vector<double> colorDistributions = {};
 
     for (const auto &range: colorRanges) {
         cv::Mat mask;
-        cv::inRange(hsvFrame, range.lower, range.upper, mask);
+        inRange(hsvFrame, range.lower, range.upper, mask);
         combinedMask |= mask;
         colorDistributions.push_back((mean(mask)[0] / 255) * 100);
     }
 
     cv::Scalar meanVal, stdDevVal;
-    cv::meanStdDev(colorDistributions, meanVal, stdDevVal);
+    meanStdDev(colorDistributions, meanVal, stdDevVal);
 
     const double scalingFactor = 100.0 / colorRanges.size();
     const double colouredStripesProbability = (meanVal[0] / scalingFactor) * 100;
@@ -26,9 +26,6 @@ bool detectColouredStripes(const cv::Mat &frame, const std::vector<ColorRange> &
 }
 
 bool detectBlackFrame(const cv::Mat &frame, const double &threshold) {
-    if (mean(frame)[0] < threshold) {
-        std::cout << "Detected black frame" << std::endl;
-    }
     return mean(frame)[0] < threshold;
 }
 
@@ -36,7 +33,7 @@ bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame, const dou
                        std::vector<double> &buffer,
                        const int maxBufferSize) {
     cv::Mat diff;
-    cv::absdiff(frame, prevFrame, diff);
+    absdiff(frame, prevFrame, diff);
 
     double bufferAverage = 0;
     const double avgDifference = mean(diff)[0];
@@ -46,7 +43,6 @@ bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame, const dou
         return false;
     }
     bufferAverage = cv::mean(buffer)[0];
-
     buffer.clear();
     return bufferAverage < threshold;
 }

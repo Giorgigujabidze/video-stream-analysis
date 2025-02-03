@@ -124,8 +124,7 @@ void validateProgramConfig(Config &config) {
         config.thresholds.coloured_stripes_max_deviation = 10;
     }
 
-    if (config.thresholds.static_frame_threshold < 0.03) {
-        std::cerr <<
-                "threshold values below 0.03 might not work on some transcoders, when no input source handling is set to frozen frame\n";
+    if (config.thresholds.static_frame_threshold < 0.000001) {
+        std::cout << "static_frame_threshold value might be too low\n";
     }
 }
