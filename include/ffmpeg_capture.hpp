@@ -51,7 +51,7 @@ class FFMpegCapture final : public ICapture {
 
     void setInterruptCallback();
 
-    void unsetIterruptCallback() const;
+    void unsetInterruptCallback() const;
 
     static int decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame);
 

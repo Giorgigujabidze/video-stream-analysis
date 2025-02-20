@@ -106,7 +106,7 @@ int GstreamerCapture::getCVFrame(cv::Mat &frame) const {
     }
     map.size = frame.rows * frame.cols * 3;
     const cv::Mat mat(height, width, CV_8UC3, map.data);
-    mat.copyTo(frame);
+    frame = mat.clone();
     gst_buffer_unmap(buffer, &map);
     gst_sample_unref(sample);
     return 0;

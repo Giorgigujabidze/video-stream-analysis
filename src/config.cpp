@@ -90,8 +90,8 @@ int streamsJsonMaker(const std::vector<StreamData> &streamDataVector) {
             continue;
         }
 
-        const std::string urlIn = "udp://" + data.in_multicast;
-        const std::string urlOut = "udp://" + data.out_multicast;
+        const std::string urlIn = "rtp://" + data.in_multicast;
+        const std::string urlOut = "rtp://" + data.out_multicast;
 
         if (!multicastSet.contains(urlIn)) {
             stream.name = "_in_" + data.id;

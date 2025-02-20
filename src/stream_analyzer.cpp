@@ -10,10 +10,11 @@
 
 
 void *analyzeVideoStream(void *threadArgs) {
-    const auto args = static_cast<ThreadArguments *>(threadArgs);
+    auto args = static_cast<ThreadArguments *>(threadArgs);
     Capture cap;
 
     if (openVideoStream(cap, args->stream.url) < 0) {
+        delete args;
         return nullptr;
     }
 
@@ -29,6 +30,7 @@ void *analyzeVideoStream(void *threadArgs) {
     while (true) {
         if (metrics.blank_frame_count > 10) {
             if (reconnect(filename, metrics, cap, args->config, args->stream.url) < 0) {
+                delete args;
                 return nullptr;
             }
             continue;
@@ -42,6 +44,7 @@ void *analyzeVideoStream(void *threadArgs) {
 
         if (frameCount % args->config.process_every_nth_frame == 0) {
             cv::Mat frame;
+
             if (const int resp = cap.retrieveFrame(args->config.key_frames_only); resp != DECODE_OK) {
                 if (resp == DECODE_ERROR) {
                     metrics.corrupt_frame_count++;
@@ -67,6 +70,7 @@ void *analyzeVideoStream(void *threadArgs) {
                 prevGrayFrame = grayFrame.clone();
                 continue;
             }
+
             analyzeFrames(grayFrame, prevGrayFrame, downscaledFrame, meanBuffer, metrics, args);
             prevGrayFrame = grayFrame.clone();
         }
@@ -78,11 +82,14 @@ void *analyzeVideoStream(void *threadArgs) {
 
         if (duration.count() >= args->config.interval) {
             if (saveAndReset(filename, metrics, frameCount, meanBuffer, start) < 0) {
+                delete args;
                 return nullptr;
             }
+
             if (args->config.save_last_frame) {
                 if (!imwrite(imgName, downscaledFrame)) {
-                    std::cout << imgName << " save failed\n";
+                    std::cout << imgName << "save failed\n";
+                    delete args;
                     return nullptr;
                 }
             }
@@ -95,16 +102,21 @@ void *analyzeVideoStream(void *threadArgs) {
 
 void analyzeFrames(const cv::Mat &grayFrame, const cv::Mat &prevGrayFrame, const cv::Mat &downscaledFrame,
                    std::vector<double> &meanBuffer, Metrics &metrics, const ThreadArguments *args) {
-    if (detectStaticFrame(grayFrame, prevGrayFrame, args->config.thresholds.static_frame_threshold,
-                          meanBuffer,
-                          args->config.size_parameters.max_mean_buffer_size)) {
+    const double staticFrameThreshold = args->config.thresholds.static_frame_threshold;
+    const int maxMeanBufferSize = args->config.size_parameters.max_mean_buffer_size;
+    const double blackFrameThreshold = args->config.thresholds.black_frame_threshold;
+
+
+    if (detectStaticFrame(grayFrame, prevGrayFrame, staticFrameThreshold, meanBuffer, maxMeanBufferSize)) {
         metrics.static_frame_count++;
-        if (detectBlackFrame(grayFrame, args->config.thresholds.black_frame_threshold)) {
+
+        if (detectBlackFrame(grayFrame, blackFrameThreshold)) {
             metrics.black_frame_count++;
-        } else if (!metrics.coloured_stripes_detected &&
-                   detectColouredStripes(downscaledFrame, args->colorRanges,
-                                         args->config.thresholds.coloured_stripes_threshold,
-                                         args->config.thresholds.coloured_stripes_max_deviation)) {
+        } else if (!metrics.coloured_stripes_detected && detectColouredStripes(downscaledFrame, args->colorRanges,
+                                                                               args->config.thresholds.
+                                                                               coloured_stripes_threshold,
+                                                                               args->config.thresholds.
+                                                                               coloured_stripes_max_deviation)) {
             metrics.coloured_stripes_detected = true;
         }
     }

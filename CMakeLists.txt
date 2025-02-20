@@ -49,14 +49,14 @@ target_link_libraries(stream_analysis
         pthread
 )
 
-pkg_check_modules(FFMPEG libavformat libavcodec libavutil)
+pkg_check_modules(FFMPEG libavformat libavcodec libavutil libswscale)
 if (FFMPEG_FOUND)
     include_directories(${FFMPEG_INCLUDE_DIRS})
     target_link_libraries(stream_analysis ${FFMPEG_LIBRARIES})
     target_compile_definitions(stream_analysis PRIVATE FFMPEG_ENABLED)
 endif()
 
-pkg_check_modules(GSTREAMER gstreamer-1.0 gstreamer-video-1.0)
+pkg_check_modules(GSTREAMER gstreamer-1.0 gstreamer-video-1.0 gstreamer-app-1.0)
 if (GSTREAMER_FOUND)
     include_directories(${GSTREAMER_INCLUDE_DIRS})
     target_link_libraries(stream_analysis ${GSTREAMER_LIBRARIES})

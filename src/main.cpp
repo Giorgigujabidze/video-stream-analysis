@@ -59,20 +59,31 @@ int main(const int argc, char **argv) {
         n = streams.streams.size();
     }
 
-    for (int i = 0; i < n; i++) {
-        const auto threadArgs = new ThreadArguments{
-            .config = *config, .stream = streams.streams[i],
-            .colorRanges = colorRanges
-        };
-        if (pthread_create(&threads[i], nullptr, analyzeVideoStream, threadArgs) != 0) {
-            std::cerr << "failed to create thread for streams: " << streams.streams[i].name << std::endl;
-            delete threadArgs;
+    constexpr int BATCH_SIZE = 20;
+
+    for (int i = 0; i < n; i += BATCH_SIZE) {
+        const int batchEnd = std::min(i + BATCH_SIZE, n);
+        for (int j = i; j < batchEnd; j++) {
+            const auto threadArgs = new ThreadArguments{
+                .config = *config,
+                .stream = streams.streams[j],
+                .colorRanges = colorRanges
+            };
+            if (pthread_create(&threads[j], nullptr, analyzeVideoStream, threadArgs) != 0) {
+                std::cerr << "failed to create thread for stream: " << streams.streams[j].name << std::endl;
+                delete threadArgs;
+            }
         }
+        sleep(2);
     }
+
+
     std::cout << "starting to grab frames\n";
     for (const auto &thread: threads) {
         pthread_join(thread, nullptr);
     }
+
+    delete config;
 
     return 0;
 }

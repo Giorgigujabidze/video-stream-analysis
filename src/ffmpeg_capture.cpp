@@ -42,7 +42,7 @@ int FFMpegCapture::openStream(const std::string &url, const std::string &timeout
         return -1;
     }
 
-    unsetIterruptCallback();
+    unsetInterruptCallback();
 
     if (std::chrono::steady_clock::now() - findStreamInfoStart > timeoutDuration) {
         std::cerr << "stream timeout" << std::endl;
@@ -140,7 +140,7 @@ void FFMpegCapture::setInterruptCallback() {
     pContext->interrupt_callback.opaque = this;
 }
 
-void FFMpegCapture::unsetIterruptCallback() const {
+void FFMpegCapture::unsetInterruptCallback() const {
     pContext->interrupt_callback.callback = nullptr;
     pContext->interrupt_callback.opaque = nullptr;
 }
