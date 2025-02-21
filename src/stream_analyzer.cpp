@@ -13,7 +13,7 @@ void *analyzeVideoStream(void *threadArgs) {
     auto args = static_cast<ThreadArguments *>(threadArgs);
     Capture cap;
 
-    if (openVideoStream(cap, args->stream.url) < 0) {
+    if (openVideoStream(cap, args->stream.url, args->config) < 0) {
         delete args;
         return nullptr;
     }
@@ -37,7 +37,7 @@ void *analyzeVideoStream(void *threadArgs) {
         }
 
         if (cap.grabFrame() < 0) {
-            std::cerr << "blank frame grabbed\n";
+            log(args->config, "blank frame grabbed " + args->stream.url, ERROR);
             metrics.blank_frame_count++;
             continue;
         }
@@ -48,18 +48,18 @@ void *analyzeVideoStream(void *threadArgs) {
             if (const int resp = cap.retrieveFrame(args->config.key_frames_only); resp != DECODE_OK) {
                 if (resp == DECODE_ERROR) {
                     metrics.corrupt_frame_count++;
-                    std::cerr << "retrieveFrame() failed\n";
+                    log(args->config, "retrieveFrame() failed " + args->stream.url, ERROR);
                 }
                 continue;
             }
 
             if (cap.getCVFrame(frame) < 0) {
-                std::cerr << "cap.getCVFrame() failed\n";
+                log(args->config, "cap.getCVFrame() failed " + args->stream.url, ERROR);
                 continue;
             }
 
             if (frame.empty()) {
-                std::cerr << "empty frame\n";
+                log(args->config, "empty frame " + args->stream.url, ERROR);
                 metrics.blank_frame_count++;
                 continue;
             }
@@ -88,7 +88,7 @@ void *analyzeVideoStream(void *threadArgs) {
 
             if (args->config.save_last_frame) {
                 if (!imwrite(imgName, downscaledFrame)) {
-                    std::cout << imgName << "save failed\n";
+                    log(args->config, imgName + " save failed " + args->stream.url, ERROR);
                     delete args;
                     return nullptr;
                 }

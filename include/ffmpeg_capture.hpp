@@ -4,8 +4,7 @@
 
 #ifndef FRAME_HPP
 #define FRAME_HPP
-#include <atomic>
-#include <queue>
+#include <iostream>
 #include <string>
 #include <chrono>
 #include "icapture.hpp"
@@ -33,9 +32,9 @@ class FFMpegCapture final : public ICapture {
     AVPacket *pPacket = nullptr;
     int videoStreamIndex = -1;
     int response = 0;
-    std::string url;
+    Config config{};
 
-    std::chrono::steady_clock::time_point findStreamInfoStart;
+    std::chrono::steady_clock::time_point timer;
     std::chrono::seconds timeoutDuration = std::chrono::seconds(30);
 
 
@@ -43,26 +42,32 @@ class FFMpegCapture final : public ICapture {
         const auto *capture = static_cast<FFMpegCapture *>(ctx);
         const auto now = std::chrono::steady_clock::now();
         const auto duration = std::chrono::duration_cast<std::chrono::seconds>(
-            now - capture->findStreamInfoStart
+            now - capture->timer
         );
 
         return duration > capture->timeoutDuration ? 1 : 0;
     }
 
+
+    void resetTimer() {
+        timer = std::chrono::steady_clock::now();
+    }
+
+
     void setInterruptCallback();
 
     void unsetInterruptCallback() const;
 
-    static int decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame);
+    static std::string modifyUrlForMulticast(const std::string &url);
+
+    int decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame) const;
 
 public:
     FFMpegCapture() = default;
 
-    explicit FFMpegCapture(const std::string &url);
-
     ~FFMpegCapture() override;
 
-    int openStream(const std::string &url, const std::string &timeout) override;
+    int openStream(const std::string &url, const Config &config, const std::string &timeout) override;
 
     [[nodiscard]] int grabFrame() override;
 

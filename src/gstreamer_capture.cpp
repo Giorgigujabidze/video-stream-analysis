@@ -10,7 +10,7 @@ GstreamerCapture::~GstreamerCapture() {
     release();
 }
 
-int GstreamerCapture::openStream(const std::string &url, const std::string &timeout) {
+int GstreamerCapture::openStream(const std::string &url, const Config & config, const std::string &timeout) {
     gst_init(nullptr, nullptr);
 
     const std::string pipeStr =

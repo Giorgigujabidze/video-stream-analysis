@@ -8,44 +8,40 @@
 
 #include "helpers.hpp"
 
-FFMpegCapture::FFMpegCapture(const std::string &url) {
-    this->url = url;
-}
-
 FFMpegCapture::~FFMpegCapture() {
     release();
 }
 
+int FFMpegCapture::openStream(const std::string &url, const Config &config, const std::string &timeout) {
+    this->config = config;
+    const std::string modifiedUrl = modifyUrlForMulticast(url);
 
-int FFMpegCapture::openStream(const std::string &url, const std::string &timeout) {
     av_dict_set(&options, "timeout", timeout.c_str(), 0);
 
     pContext = avformat_alloc_context();
 
-
-    if (!pContext) {
-        std::cout << "failed to allocate AVFormatContext" << std::endl;
+    if (pContext == nullptr) {
+        log(config, "failed to allocate AVFormatContext", ERROR);
         return -1;
     }
 
-    if (avformat_open_input(&pContext, url.c_str(), nullptr, &options) < 0) {
-        std::cerr << "avformat_open_input error" << std::endl;
+
+    if (avformat_open_input(&pContext, modifiedUrl.c_str(), nullptr, &options) < 0) {
+        log(config, "failed to open stream", ERROR);
         return -1;
     }
 
     setInterruptCallback();
 
-    findStreamInfoStart = std::chrono::steady_clock::now();
-
     if (avformat_find_stream_info(pContext, nullptr) < 0) {
-        std::cerr << "avformat_find_stream_info error" << std::endl;
+        log(config, "failed to find stream information", ERROR);
         return -1;
     }
 
     unsetInterruptCallback();
 
-    if (std::chrono::steady_clock::now() - findStreamInfoStart > timeoutDuration) {
-        std::cerr << "stream timeout" << std::endl;
+    if (std::chrono::steady_clock::now() - timer > timeoutDuration) {
+        log(config, "stream timeout", ERROR);
         return -1;
     }
 
@@ -61,7 +57,7 @@ int FFMpegCapture::openStream(const std::string &url, const std::string &timeout
         pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
 
         if (pLocalCodec == nullptr) {
-            std::cerr << "avcodec_find_decoder error" << std::endl;
+            log(config, "failed to find codec", ERROR);
             return -1;
         }
 
@@ -70,35 +66,37 @@ int FFMpegCapture::openStream(const std::string &url, const std::string &timeout
             pCodec = pLocalCodec;
             pCodecParameters = pLocalCodecParameters;
         }
-        std::cout << pLocalCodec->name << " " << pLocalCodec->id << pLocalCodecParameters->bit_rate << std::endl;
+        log(config, std::string(pLocalCodec->name) + " " +
+                    std::to_string(pLocalCodec->id) + " " +
+                    std::to_string(pLocalCodecParameters->bit_rate), INFO);
     }
 
     if (videoStreamIndex == -1) {
-        std::cerr << "couldn't find a video stream" << std::endl;
+        log(config, "couldn't find a video stream", ERROR);
         return -1;
     }
 
     pCodecContext = avcodec_alloc_context3(pCodec);
 
     if (pCodecContext == nullptr) {
-        std::cerr << "avcodec_alloc_context3 error" << std::endl;
+        log(config, "failed to allocate AVCodecContext", ERROR);
         return -1;
     }
 
     if (avcodec_parameters_to_context(pCodecContext, pCodecParameters) < 0) {
-        std::cerr << "avcodec_parameters_to_context() error" << std::endl;
+        log(config, "failed to copy codec parameters", ERROR);
         return -1;
     }
 
     if (avcodec_open2(pCodecContext, pCodec, nullptr) < 0) {
-        std::cerr << "avcodec_open2 error" << std::endl;
+        log(config, "failed to open codec", ERROR);
         return -1;
     }
 
     pFrame = av_frame_alloc();
 
     if (pFrame == nullptr) {
-        std::cerr << "av_frame_alloc error" << std::endl;
+        log(config, "failed to allocate video frame", ERROR);
         delete pFrame;
         return -1;
     }
@@ -106,7 +104,7 @@ int FFMpegCapture::openStream(const std::string &url, const std::string &timeout
     pPacket = av_packet_alloc();
 
     if (pPacket == nullptr) {
-        std::cerr << "av_packet_alloc error" << std::endl;
+        log(config, "failed to allocate AVPacket", ERROR);
         delete pPacket;
         return -1;
     }
@@ -115,7 +113,7 @@ int FFMpegCapture::openStream(const std::string &url, const std::string &timeout
 
 int FFMpegCapture::grabFrame() {
     if (av_read_frame(pContext, pPacket) < 0) {
-        std::cerr << "av_read_frame error" << std::endl;
+        log(config, "failed to read frame", ERROR);
         av_packet_unref(pPacket);
         return -1;
     }
@@ -136,6 +134,7 @@ int FFMpegCapture::retrieveFrame(const bool keyframesOnly) {
 
 
 void FFMpegCapture::setInterruptCallback() {
+    timer = std::chrono::steady_clock::now();
     pContext->interrupt_callback.callback = interruptCallback;
     pContext->interrupt_callback.opaque = this;
 }
@@ -145,11 +144,18 @@ void FFMpegCapture::unsetInterruptCallback() const {
     pContext->interrupt_callback.opaque = nullptr;
 }
 
-int FFMpegCapture::decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame) {
+std::string FFMpegCapture::modifyUrlForMulticast(const std::string &url) {
+    if (url.substr(0, 6) == "rtp://") {
+        return "udp://" + url.substr(6);
+    }
+    return url;
+}
+
+int FFMpegCapture::decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame) const {
     int response = avcodec_send_packet(pCodecContext, pPacket);
 
     if (response < 0) {
-        std::cerr << av_err2str(response) << std::endl;
+        log(config, "failed to send packet", ERROR);
         return DECODE_ERROR;
     }
 
@@ -159,7 +165,7 @@ int FFMpegCapture::decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecC
         return NOT_ENOUGH_DATA;
     }
     if (response < 0) {
-        std::cerr << "error receiving frame from the decoder" << std::endl;
+        log(config, "failed to decode frame", ERROR);
         return DECODE_ERROR;
     }
 
@@ -176,7 +182,7 @@ int FFMpegCapture::getCVFrame(cv::Mat &frame) const {
 
     AVFrame *pFrameBGR = av_frame_alloc();
     if (pFrameBGR == nullptr) {
-        std::cerr << "failed to allocate AVFrame for conversion." << std::endl;
+        log(config, "failed to allocate AVFrame", ERROR);
         return -1;
     }
 
@@ -185,7 +191,7 @@ int FFMpegCapture::getCVFrame(cv::Mat &frame) const {
     pFrameBGR->height = h;
 
     if (av_frame_get_buffer(pFrameBGR, 0) < 0) {
-        std::cerr << "failed to allocate buffer for AVFrame." << std::endl;
+        log(config, "failed to allocate buffer for AVFrame.", ERROR);
         av_frame_free(&pFrameBGR);
         return -1;
     }
@@ -196,7 +202,7 @@ int FFMpegCapture::getCVFrame(cv::Mat &frame) const {
         SWS_BILINEAR, nullptr, nullptr, nullptr);
 
     if (!swsContext) {
-        std::cerr << "failed to initialize SwsContext." << std::endl;
+        log(config, "failed to initialize SwsContext.", ERROR);
         av_frame_free(&pFrameBGR);
         return -1;
     }
@@ -235,4 +241,5 @@ void FFMpegCapture::release() {
     pCodecParameters = nullptr;
     videoStreamIndex = -1;
     response = 0;
+    config = {};
 }

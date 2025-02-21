@@ -6,11 +6,13 @@
 #define ICAPTURE_HPP
 #include <string>
 
+#include "config.hpp"
+
 class ICapture {
 public:
     virtual ~ICapture() = default;
 
-    virtual int openStream(const std::string &url, const std::string &timeout) = 0;
+    virtual int openStream(const std::string &url, const Config & config, const std::string &timeout) = 0;
 
     [[nodiscard]] virtual int grabFrame()  = 0;
 

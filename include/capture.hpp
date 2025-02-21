@@ -13,7 +13,7 @@ class Capture {
     ICapture *capture;
 
 public:
-    int openStream(const std::string &url, int apiBackend = 1900);
+    int openStream(const std::string &url, const Config &config);
 
     [[nodiscard]] int grabFrame() const;
 

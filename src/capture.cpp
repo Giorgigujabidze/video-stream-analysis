@@ -10,16 +10,16 @@
 #include "ffmpeg_capture.hpp"
 #include "gstreamer_capture.hpp"
 
-int Capture::openStream(const std::string &url, const int apiBackend) {
-    if (apiBackend == 1900) {
+int Capture::openStream(const std::string &url, const Config &config) {
+    if (config.api_backend == 1900) {
         capture = new FFMpegCapture();
-    } else if (apiBackend == 1800) {
+    } else if (config.api_backend == 1800) {
         capture = new GstreamerCapture();
     } else {
         return -1;
     }
 
-    return capture->openStream(url, "30000000");
+    return capture->openStream(url, config, "30000000");
 }
 
 int Capture::grabFrame() const {

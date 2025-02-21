@@ -26,7 +26,7 @@ class GstreamerCapture final : public ICapture {
 public:
     ~GstreamerCapture() override;
 
-    int openStream(const std::string &url, const std::string &timeout) override;
+    int openStream(const std::string &url, const Config & config, const std::string &timeout) override;
 
     [[nodiscard]] int grabFrame() override;
 

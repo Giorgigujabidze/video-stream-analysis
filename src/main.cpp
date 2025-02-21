@@ -49,7 +49,7 @@ int main(const int argc, char **argv) {
 
     const std::vector<ColorRange> colorRanges = loadColorRangesFromJson("../color_ranges/color_ranges.json");
     if (colorRanges.empty()) {
-        std::cout << "failed to load color ranges\n";
+        log(*config, "failed to load color ranges", ERROR);
         return -1;
     }
 
@@ -70,7 +70,7 @@ int main(const int argc, char **argv) {
                 .colorRanges = colorRanges
             };
             if (pthread_create(&threads[j], nullptr, analyzeVideoStream, threadArgs) != 0) {
-                std::cerr << "failed to create thread for stream: " << streams.streams[j].name << std::endl;
+                log(*config, "failed to create thread for stream: " + streams.streams[j].name, ERROR);
                 delete threadArgs;
             }
         }

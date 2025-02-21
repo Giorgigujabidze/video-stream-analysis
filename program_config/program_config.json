@@ -3,7 +3,7 @@
   "hardware_acceleration": 0,
   "interval": 30,
   "output_to_console": false,
-  "save_last_frame": true,
+  "save_last_frame": false,
   "key_frames_only": true,
   "process_every_nth_frame": 1,
   "size_parameters": {
