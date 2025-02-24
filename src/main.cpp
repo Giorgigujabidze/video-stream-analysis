@@ -38,12 +38,14 @@ int main(const int argc, char **argv) {
 
     const auto config = new Config{};
     if (loadConfigFromJson("../program_config/program_config.json", *config) < 0) {
+        std::cerr << "failed to load config from json" << std::endl;
         return -1;
     }
     validateProgramConfig(*config);
 
     auto streams = Streams{};
     if (readStreamsFromJson("../streams/streams.json", streams) < 0) {
+        log(*config, "failed to load streams", ERROR);
         return -1;
     }
 

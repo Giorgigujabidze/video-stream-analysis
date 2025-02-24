@@ -52,7 +52,7 @@ void filePutContents(const std::string &filename, const std::string &content, co
 
 int openVideoStream(Capture &cap, const std::string &url, const Config &config) {
     if (cap.openStream(url, config) < 0) {
-        std::cerr << "failed to open video stream\n";
+        log(config, "failed to open video stream", ERROR);
         filePutContents("../failed_streams/failed_streams.txt", url + "\n", true);
         cap.release();
         return -1;

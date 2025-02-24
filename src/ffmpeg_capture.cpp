@@ -176,6 +176,8 @@ int FFMpegCapture::decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecC
     return DECODE_OK;
 }
 
+// TODO: future optimization needed
+
 int FFMpegCapture::getCVFrame(cv::Mat &frame) const {
     const int w = pFrame->width;
     const int h = pFrame->height;
