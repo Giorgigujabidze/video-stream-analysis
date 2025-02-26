@@ -7,7 +7,7 @@
 
 
 GstreamerCapture::~GstreamerCapture() {
-    release();
+    releaseStream();
 }
 
 int GstreamerCapture::openStream(const std::string &url, const Config & config, const std::string &timeout) {
@@ -59,40 +59,40 @@ int GstreamerCapture::grabFrame() {
     return 0;
 }
 
-int GstreamerCapture::retrieveFrame(bool keyframesOnly) {
+decode_status_t GstreamerCapture::retrieveFrame(bool keyframesOnly) {
     if (gst_app_sink_is_eos(GST_APP_SINK(sinkVideo))) {
         std::cout << "eos" << std::endl;
-        return -1;
+        return DECODE_ERROR;
     }
 
     sample = gst_app_sink_pull_sample(GST_APP_SINK(sinkVideo));
 
     if (sample == nullptr) {
         std::cout << "no sample" << std::endl;
-        return -1;
+        return DECODE_ERROR;
     }
     caps = gst_sample_get_caps(sample);
 
     if (caps == nullptr) {
         std::cout << "no caps" << std::endl;
-        return -1;
+        return DECODE_ERROR;
     }
 
     structure = gst_caps_get_structure(caps, 0);
 
     if (!gst_structure_get_int(structure, "width", &width)) {
         std::cout << "failed to get width" << std::endl;
-        return -1;
+        return DECODE_ERROR;
     }
     if (!gst_structure_get_int(structure, "height", &height)) {
         std::cout << "failed to get height" << std::endl;
-        return -1;
+        return DECODE_ERROR;
     }
 
     buffer = gst_sample_get_buffer(sample);
     if (buffer == nullptr) {
         std::cout << "failed to get buffer" << std::endl;
-        return -1;
+        return DECODE_ERROR;
     }
 
     return DECODE_OK;
@@ -112,7 +112,7 @@ int GstreamerCapture::getCVFrame(cv::Mat &frame) const {
     return 0;
 }
 
-void GstreamerCapture::release() {
+void GstreamerCapture::releaseStream() {
     if (pipeline) {
         gst_element_set_state(pipeline, GST_STATE_NULL);
         gst_object_unref(pipeline);

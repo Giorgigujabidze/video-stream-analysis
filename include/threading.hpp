@@ -12,6 +12,7 @@ struct ThreadArguments {
     Config config;
     Stream stream;
     std::vector<ColorRange> colorRanges;
+    std::shared_ptr<std::atomic<bool>> stopFlag;
 };
 
 #endif //THREADING_HPP

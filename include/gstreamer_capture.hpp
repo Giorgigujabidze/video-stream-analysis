@@ -30,11 +30,11 @@ public:
 
     [[nodiscard]] int grabFrame() override;
 
-    int retrieveFrame(bool keyframesOnly) override;
+    decode_status_t retrieveFrame(bool keyframesOnly) override;
 
     int getCVFrame(cv::Mat &frame) const override;
 
-    void release() override;
+    void releaseStream() override;
 
 private:
     int width = 0, height = 0;

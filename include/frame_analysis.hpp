@@ -4,15 +4,32 @@
 #include <opencv2/opencv.hpp>
 #include "config.hpp"
 
-bool detectBlackFrame(const cv::Mat &frame, const double &threshold);
+struct BlackFrameData {
+    const cv::Mat &frame;
+    const double &threshold;
+};
 
-bool detectStaticFrame(const cv::Mat &frame, const cv::Mat &prevFrame,
-                       const double &threshold, std::vector<double> &buffer,
-                       int maxBufferSize);
 
-bool detectColouredStripes(const cv::Mat &frame,
-                           const std::vector<ColorRange> &colorRanges,
-                           const double &threshold1, const double &threshold2);
+struct StaticFrameData {
+    const cv::Mat &frame;
+    const cv::Mat &prevFrame;
+    const double &threshold;
+    std::vector<double> &buffer;
+    const int maxBufferSize;
+};
+
+struct ColouredStripesData{
+    const cv::Mat &frame;
+    const std::vector<ColorRange> &colorRanges;
+    const double &threshold1;
+    const double &threshold2;
+};
+
+bool detectBlackFrame(const BlackFrameData &data);
+
+bool detectStaticFrame(const StaticFrameData &data);
+
+bool detectColouredStripes(const ColouredStripesData &data);
 
 
 #endif

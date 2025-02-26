@@ -10,39 +10,41 @@
 #include "ffmpeg_capture.hpp"
 #include "gstreamer_capture.hpp"
 
+void Capture::resetCapture() {
+    if (capture) {
+        capture->releaseStream();
+        capture.reset();
+    }
+}
+
 int Capture::openStream(const std::string &url, const Config &config) {
+    resetCapture();
     if (config.api_backend == 1900) {
-        capture = new FFMpegCapture();
+        capture = std::make_unique<FFMpegCapture>();
     } else if (config.api_backend == 1800) {
-        capture = new GstreamerCapture();
+        capture = std::make_unique<GstreamerCapture>();
     } else {
         return -1;
     }
+
 
     return capture->openStream(url, config, "30000000");
 }
 
 int Capture::grabFrame() const {
-    if (capture == nullptr) {
-        return -1;
-    }
     return capture->grabFrame();
 }
 
-int Capture::retrieveFrame(const bool keyframesOnly) const {
-    if (capture == nullptr) {
-        return -1;
-    }
+decode_status_t Capture::retrieveFrame(const bool keyframesOnly) const {
     return capture->retrieveFrame(keyframesOnly);
 }
 
 int Capture::getCVFrame(cv::Mat &frame) const {
-    if (capture == nullptr) {
-        return -1;
-    }
     return capture->getCVFrame(frame);
 }
 
-void Capture::release() const {
-    capture->release();
+void Capture::releaseStream() const {
+    if (capture) {
+        capture->releaseStream();
+    }
 }

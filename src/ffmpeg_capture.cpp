@@ -9,14 +9,14 @@
 #include "helpers.hpp"
 
 FFMpegCapture::~FFMpegCapture() {
-    release();
+    releaseStream();
 }
 
 int FFMpegCapture::openStream(const std::string &url, const Config &config, const std::string &timeout) {
     this->config = config;
     const std::string modifiedUrl = modifyUrlForMulticast(url);
 
-    av_dict_set(&options, "timeout", timeout.c_str(), 0);
+    setStreamOptions(timeout);
 
     pContext = avformat_alloc_context();
 
@@ -24,7 +24,6 @@ int FFMpegCapture::openStream(const std::string &url, const Config &config, cons
         log(config, "failed to allocate AVFormatContext", ERROR);
         return -1;
     }
-
 
     if (avformat_open_input(&pContext, modifiedUrl.c_str(), nullptr, &options) < 0) {
         log(config, "failed to open stream", ERROR);
@@ -121,7 +120,7 @@ int FFMpegCapture::grabFrame() {
     return 0;
 }
 
-int FFMpegCapture::retrieveFrame(const bool keyframesOnly) {
+decode_status_t FFMpegCapture::retrieveFrame(const bool keyframesOnly) {
     if (pPacket->stream_index == videoStreamIndex &&
         (!keyframesOnly || (pPacket->flags & AV_PKT_FLAG_KEY))) {
         response = decodePacket(pPacket, pCodecContext, pFrame);
@@ -132,6 +131,28 @@ int FFMpegCapture::retrieveFrame(const bool keyframesOnly) {
     return NON_VIDEO_PACKET;
 }
 
+
+void FFMpegCapture::setStreamOptions(const std::string &timeout) {
+    av_dict_set(&options, "timeout", timeout.c_str(), 0);
+
+    av_dict_set(&options, "buffer_size", "425984", 0);
+
+    av_dict_set(&options, "fifo_size", "1000000", 0);
+}
+
+int FFMpegCapture::interruptCallback(void *ctx) {
+    const auto *capture = static_cast<FFMpegCapture *>(ctx);
+    const auto now = std::chrono::steady_clock::now();
+    const auto duration = std::chrono::duration_cast<std::chrono::seconds>(
+        now - capture->timer
+    );
+
+    return duration > capture->timeoutDuration ? 1 : 0;
+}
+
+void FFMpegCapture::resetTimer() {
+    timer = std::chrono::steady_clock::now();
+}
 
 void FFMpegCapture::setInterruptCallback() {
     timer = std::chrono::steady_clock::now();
@@ -151,7 +172,8 @@ std::string FFMpegCapture::modifyUrlForMulticast(const std::string &url) {
     return url;
 }
 
-int FFMpegCapture::decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame) const {
+decode_status_t FFMpegCapture::decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecContext,
+                                            AVFrame *pFrame) const {
     int response = avcodec_send_packet(pCodecContext, pPacket);
 
     if (response < 0) {
@@ -221,27 +243,32 @@ int FFMpegCapture::getCVFrame(cv::Mat &frame) const {
     return 0;
 }
 
-void FFMpegCapture::release() {
+void FFMpegCapture::releaseStream() {
     if (pPacket) {
         av_packet_free(&pPacket);
     }
+
     if (pFrame) {
         av_frame_free(&pFrame);
     }
+
     if (pCodecContext) {
         avcodec_free_context(&pCodecContext);
     }
+
     if (options) {
         av_dict_free(&options);
     }
 
     if (pContext) {
+        log(config, "input closed", INFO);
         avformat_close_input(&pContext);
     }
+
     options = nullptr;
     pCodec = nullptr;
     pCodecParameters = nullptr;
     videoStreamIndex = -1;
-    response = 0;
+    response = DECODE_OK;
     config = {};
 }

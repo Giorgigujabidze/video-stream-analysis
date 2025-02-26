@@ -1,5 +1,6 @@
 #include "helpers.hpp"
 
+#include <atomic>
 #include <fstream>
 #include <opencv2/videoio.hpp>
 #include <opencv2/core/utils/logger.hpp>
@@ -9,6 +10,9 @@
 #include "ffmpeg_capture.hpp"
 #include "metrics.hpp"
 #include "stream_analyzer.hpp"
+
+static pthread_mutex_t fileMutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t logMutex = PTHREAD_MUTEX_INITIALIZER;
 
 void programSetup() {
     setenv("OPENCV_FFMPEG_IS_THREAD_SAFE", "1", 0);
@@ -41,6 +45,7 @@ int startStreamsFileMaker(const std::string &filename) {
 }
 
 void filePutContents(const std::string &filename, const std::string &content, const bool append = false) {
+    pthread_mutex_lock(&fileMutex);
     std::ofstream outfile;
     if (append) {
         outfile.open(filename, std::ios_base::app);
@@ -48,13 +53,14 @@ void filePutContents(const std::string &filename, const std::string &content, co
         outfile.open(filename, std::ios_base::trunc);
     }
     outfile << content;
+    pthread_mutex_unlock(&fileMutex);
 }
 
 int openVideoStream(Capture &cap, const std::string &url, const Config &config) {
     if (cap.openStream(url, config) < 0) {
         log(config, "failed to open video stream", ERROR);
         filePutContents("../failed_streams/failed_streams.txt", url + "\n", true);
-        cap.release();
+        cap.releaseStream();
         return -1;
     }
     return 0;
@@ -65,38 +71,68 @@ void preprocessFrame(const cv::Mat &frame, cv::Mat &downscaledFrame, cv::Mat &gr
     cvtColor(downscaledFrame, grayFrame, cv::COLOR_BGR2GRAY);
 }
 
-int saveAndReset(const std::string &filename, Metrics &metrics, int &frameCount, std::vector<double> &meanBuffer,
-                 std::chrono::time_point<std::chrono::system_clock> &start) {
-    if (writeResultsToJson(filename, metrics) < 0) {
+int saveAndReset(ResetData &resetData, SaveData &saveData) {
+    if (writeResultsToJson(saveData.filename, saveData.metrics) < 0) {
         return -1;
     }
-    frameCount = 0;
-    meanBuffer.erase(meanBuffer.begin(), meanBuffer.end());
-    metrics = Metrics{};
-    start = std::chrono::high_resolution_clock::now();
+    resetData.reset();
     return 0;
 }
 
-int reconnect(const std::string &filename, Metrics &metrics, Capture &cap, const Config &config,
-              const std::string &url) {
-    metrics.no_input_stream = true;
-    log(config, "connection lost. attempting to reconnect to: " + url, ERROR);
-    cap.release();
-    if (writeResultsToJson(filename, metrics) < 0) {
-        log(config, "failed to reconnect to " + url, ERROR);
+int reconnect(ReconnectData &data) {
+    data.metrics.no_input_stream = true;
+    log(data.config, "connection lost. attempting to reconnect to: " + data.url, ERROR);
+
+    data.cap.releaseStream();
+
+    if (writeResultsToJson(data.filename, data.metrics) < 0) {
+        log(data.config, "failed to save data for " + data.url, ERROR);
         return -1;
     }
 
-    while (true) {
-        if (openVideoStream(cap, url, config) >= 0) {
-            log(config, "reconnected to " + url, INFO);
-            metrics = Metrics{};
+    int sleepTime = 10;
+    while (!data.stopFlag->load()) {
+        sleepTime = std::min(sleepTime++, 120);
+        sleep(sleepTime);
+        if (openVideoStream(data.cap, data.url, data.config) >= 0) {
+            log(data.config, "reconnected to " + data.url, INFO);
+            data.metrics = Metrics{};
             break;
         }
-        log(config, "failed to reconnect to " + url, ERROR);
-        sleep(5);
+        log(data.config, "failed to reconnect to " + data.url, ERROR);
+        sleep(sleepTime / 2);
     }
     return 0;
+}
+
+bool handleDecodeResponse(const decode_status_t resp, Metrics &metrics, const ThreadArguments *args) {
+    switch (resp) {
+        case DECODE_OK:
+            break;
+        case DECODE_ERROR:
+            metrics.corrupt_frame_count++;
+            log(args->config, "retrieveFrame error", ERROR);
+            return false;
+        case NOT_ENOUGH_DATA:
+        case NON_VIDEO_PACKET:
+            return false;
+    }
+    return true;
+}
+
+bool onIntervalElapsed(ResetData &resetData, SaveData &saveData) {
+    if (saveAndReset(resetData, saveData) < 0) {
+        return false;
+    }
+
+    if (saveData.arguments->config.save_last_frame) {
+        if (!imwrite(saveData.imageName, saveData.image)) {
+            log(saveData.arguments->config, saveData.imageName + " save failed " + saveData.arguments->stream.url,
+                ERROR);
+            return false;
+        }
+    }
+    return true;
 }
 
 void validateProgramConfig(Config &config) {
@@ -133,13 +169,17 @@ void log(const Config &config, const std::string &message, const LogLevel level)
     if (!config.output_to_console) {
         return;
     }
+    pthread_mutex_lock(&logMutex);
     switch (level) {
         case INFO:
-            std::cout << to_string(level) << ": " << message << '\n';
+            std::cout << to_string(level) << ": " << message << std::endl;
+            std::cout << "--------------------------------------------------" << std::endl;
+
             break;
         case WARNING:
         case ERROR:
-            std::cerr << to_string(level) << ": " << message << '\n';
+            std::cerr << to_string(level) << ": " << message << std::endl;
+            std::cerr << "--------------------------------------------------" << std::endl;
     }
-    std::cout << "--------------------------------------------------" << std::endl;
+    pthread_mutex_unlock(&logMutex);
 }

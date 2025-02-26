@@ -15,12 +15,6 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-enum RETRIEVE_FLAGS {
-    DECODE_OK = 70,
-    DECODE_ERROR = 80,
-    NOT_ENOUGH_DATA = 90,
-    NON_VIDEO_PACKET = 100
-};
 
 class FFMpegCapture final : public ICapture {
     AVFormatContext *pContext = nullptr;
@@ -31,28 +25,17 @@ class FFMpegCapture final : public ICapture {
     AVFrame *pFrame = nullptr;
     AVPacket *pPacket = nullptr;
     int videoStreamIndex = -1;
-    int response = 0;
+    decode_status_t response = DECODE_OK;
     Config config{};
 
     std::chrono::steady_clock::time_point timer;
     std::chrono::seconds timeoutDuration = std::chrono::seconds(30);
 
+    void setStreamOptions(const std::string &timeout);
 
-    static int interruptCallback(void *ctx) {
-        const auto *capture = static_cast<FFMpegCapture *>(ctx);
-        const auto now = std::chrono::steady_clock::now();
-        const auto duration = std::chrono::duration_cast<std::chrono::seconds>(
-            now - capture->timer
-        );
+    static int interruptCallback(void *ctx);
 
-        return duration > capture->timeoutDuration ? 1 : 0;
-    }
-
-
-    void resetTimer() {
-        timer = std::chrono::steady_clock::now();
-    }
-
+    void resetTimer();
 
     void setInterruptCallback();
 
@@ -60,7 +43,7 @@ class FFMpegCapture final : public ICapture {
 
     static std::string modifyUrlForMulticast(const std::string &url);
 
-    int decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame) const;
+    decode_status_t decodePacket(const AVPacket *pPacket, AVCodecContext *pCodecContext, AVFrame *pFrame) const;
 
 public:
     FFMpegCapture() = default;
@@ -71,11 +54,11 @@ public:
 
     [[nodiscard]] int grabFrame() override;
 
-    int retrieveFrame(bool keyframesOnly) override;
+    decode_status_t retrieveFrame(bool keyframesOnly) override;
 
     int getCVFrame(cv::Mat &frame) const override;
 
-    void release() override;
+    void releaseStream() override;
 };
 
 

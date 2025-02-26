@@ -1,3 +1,5 @@
+#include <atomic>
+
 #include "stream_analyzer.hpp"
 #include "config.hpp"
 #include "metrics.hpp"
@@ -7,9 +9,20 @@
 #include "ffmpeg_capture.hpp"
 #include "threading.hpp"
 #include "helpers.hpp"
+#include <csignal>
 
+auto gStopFlag = std::make_shared<std::atomic<bool> >(false);
+
+void signalHandler(int signum) {
+    std::cout << " received " << signum << " shutting down..." << std::endl;
+    gStopFlag->store(true);
+}
 
 int main(const int argc, char **argv) {
+    std::signal(SIGINT, signalHandler);
+    std::signal(SIGTERM, signalHandler);
+    std::signal(SIGABRT, signalHandler);
+
     if (argc > 3) {
         getHelp(argv[0]);
         return -1;
@@ -18,7 +31,6 @@ int main(const int argc, char **argv) {
     programSetup();
 
     int n = 0;
-
 
     if (argc == 2 && std::string_view(argv[1]) == "--help") {
         getHelp(argv[0]);
@@ -69,7 +81,8 @@ int main(const int argc, char **argv) {
             const auto threadArgs = new ThreadArguments{
                 .config = *config,
                 .stream = streams.streams[j],
-                .colorRanges = colorRanges
+                .colorRanges = colorRanges,
+                .stopFlag = gStopFlag
             };
             if (pthread_create(&threads[j], nullptr, analyzeVideoStream, threadArgs) != 0) {
                 log(*config, "failed to create thread for stream: " + streams.streams[j].name, ERROR);
