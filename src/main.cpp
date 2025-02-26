@@ -14,7 +14,6 @@
 auto gStopFlag = std::make_shared<std::atomic<bool> >(false);
 
 void signalHandler(int signum) {
-    std::cout << " received " << signum << " shutting down..." << std::endl;
     gStopFlag->store(true);
 }
 
@@ -67,11 +66,11 @@ int main(const int argc, char **argv) {
         return -1;
     }
 
-    std::vector threads(streams.streams.size(), pthread_t{});
-
     if (n == 0 || n > streams.streams.size()) {
         n = streams.streams.size();
     }
+
+    std::vector threads(n, pthread_t{});
 
     constexpr int BATCH_SIZE = 20;
 
@@ -91,7 +90,6 @@ int main(const int argc, char **argv) {
         }
         sleep(2);
     }
-
 
     std::cout << "starting to grab frames\n";
     for (const auto &thread: threads) {
