@@ -70,7 +70,8 @@ int main(const int argc, char **argv) {
         n = streams.streams.size();
     }
 
-    std::vector threads(n, pthread_t{});
+    std::vector<pthread_t> threads;
+    threads.reserve(n);
 
     constexpr int BATCH_SIZE = 20;
 
@@ -83,12 +84,21 @@ int main(const int argc, char **argv) {
                 .colorRanges = colorRanges,
                 .stopFlag = gStopFlag
             };
-            if (pthread_create(&threads[j], nullptr, analyzeVideoStream, threadArgs) != 0) {
+            pthread_t thread;
+            if (pthread_create(&thread, nullptr, analyzeVideoStream, threadArgs) != 0) {
                 log(*config, "failed to create thread for stream: " + streams.streams[j].name, ERROR);
                 delete threadArgs;
+            } else {
+                threads.push_back(thread);
             }
         }
         sleep(2);
+    }
+
+    if (threads.empty()) {
+        log(*config, "failed to create threads", ERROR);
+        delete config;
+        return -1;
     }
 
     std::cout << "starting to grab frames\n";
